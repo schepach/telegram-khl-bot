@@ -5,8 +5,8 @@ package ru.khl.bot.constants;
  */
 public class Constants {
 
-    public static final String HC_CLUBS_LIST_EAST = "/hockeyclubsofeast";
-    public static final String HC_CLUBS_LIST_WEST = "/hockeyclubsofwest";
+    public static final String HC_CLUBS_LIST_EAST = "/HOCKEYCLUBSOFEAST";
+    public static final String HC_CLUBS_LIST_WEST = "/HOCKEYCLUBSOFWEST";
 
     // WEST Conference
     public static final String SKA = "/SKA";
@@ -80,8 +80,8 @@ public class Constants {
     public static final String URL_KHL_NEWS = "http://www.khl.ru/news/";
 
     public static final String START_TEXT = "Enter your favorite conference. /help - помощь";
-    public static final String HELP = "/help";
-    public static final String START = "/start";
+    public static final String HELP = "/HELP";
+    public static final String START = "/START";
     public static final String ERROR_OTHER_INPUT = "Bad Command! /help - помощь";
     public static final String UNEXPECTED_ERROR = "Unexpected error: ";
 
