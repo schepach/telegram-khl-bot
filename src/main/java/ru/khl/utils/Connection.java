@@ -13,6 +13,7 @@ import ru.khl.bot.constants.Constants;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by alexey on 01.11.16.
@@ -21,106 +22,103 @@ import java.util.HashMap;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
+    private static Map<String, String> NEWS_MAP = new HashMap<>();
 
     public static String sendRequest(String command) throws IOException {
 
-
-        //TODO: url'ы брать с сайта, а не хардкодить в константах
-
-        String url[] = new String[1];
+        String url;
         switch (command) {
 
             //WEST Conference
             case Constants.SKA:
-                url[0] = Constants.URL_SKA;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SKA;
+                return getInfoForHockeyClub(url);
             case Constants.CSKA:
-                url[0] = Constants.URL_CSKA;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_CSKA;
+                return getInfoForHockeyClub(url);
             case Constants.TORPEDO:
-                url[0] = Constants.URL_TORPEDO;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_TORPEDO;
+                return getInfoForHockeyClub(url);
             case Constants.LOKOMOTIV:
-                url[0] = Constants.URL_LOKOMOTIV;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_LOKOMOTIV;
+                return getInfoForHockeyClub(url);
             case Constants.DINAMO_MSK:
-                url[0] = Constants.URL_DINAMO_MSK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_DINAMO_MSK;
+                return getInfoForHockeyClub(url);
             case Constants.DINAMO_MINSK:
-                url[0] = Constants.URL_DINAMO_MINSK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_DINAMO_MINSK;
+                return getInfoForHockeyClub(url);
             case Constants.JOKERIT:
-                url[0] = Constants.URL_JOKERIT;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_JOKERIT;
+                return getInfoForHockeyClub(url);
             case Constants.VITYAZ:
-                url[0] = Constants.URL_VITYAZ;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_VITYAZ;
+                return getInfoForHockeyClub(url);
             case Constants.SOCHI:
-                url[0] = Constants.URL_SOCHI;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SOCHI;
+                return getInfoForHockeyClub(url);
             case Constants.SPARTAK:
-                url[0] = Constants.URL_SPARTAK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SPARTAK;
+                return getInfoForHockeyClub(url);
             case Constants.MEDVESCAK:
-                url[0] = Constants.URL_MEDVESCAK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_MEDVESCAK;
+                return getInfoForHockeyClub(url);
             case Constants.SLOVAN:
-                url[0] = Constants.URL_SLOVAN;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SLOVAN;
+                return getInfoForHockeyClub(url);
             case Constants.SEVERSTAL:
-                url[0] = Constants.URL_SEVERSTAL;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SEVERSTAL;
+                return getInfoForHockeyClub(url);
             case Constants.DINAMO_RIGA:
-                url[0] = Constants.URL_DINAMO_RIGA;
-                return getInfoForHockeyClub(url[0]);
-
+                url = Constants.URL_DINAMO_RIGA;
+                return getInfoForHockeyClub(url);
 
             // EAST Conference
             case Constants.METALLURG_MAGNITOGORSK:
-                url[0] = Constants.URL_METALLURG_MAGNITOGORSK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_METALLURG_MAGNITOGORSK;
+                return getInfoForHockeyClub(url);
             case Constants.AVANGARD:
-                url[0] = Constants.URL_AVANGARD;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_AVANGARD;
+                return getInfoForHockeyClub(url);
             case Constants.AK_BARS:
-                url[0] = Constants.URL_AK_BARS;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_AK_BARS;
+                return getInfoForHockeyClub(url);
             case Constants.SALAVAT_YULAEV:
-                url[0] = Constants.URL_SALAVAT_YULAEV;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SALAVAT_YULAEV;
+                return getInfoForHockeyClub(url);
             case Constants.TRAKTOR:
-                url[0] = Constants.URL_TRAKTOR;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_TRAKTOR;
+                return getInfoForHockeyClub(url);
             case Constants.ADMIRAL:
-                url[0] = Constants.URL_ADMIRAL;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_ADMIRAL;
+                return getInfoForHockeyClub(url);
             case Constants.KUNLUN_RED_STAR:
-                url[0] = Constants.URL_KUNLUN_RED_STAR;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_KUNLUN_RED_STAR;
+                return getInfoForHockeyClub(url);
             case Constants.NEFTEKHIMIK:
-                url[0] = Constants.URL_NEFTEKHIMIK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_NEFTEKHIMIK;
+                return getInfoForHockeyClub(url);
             case Constants.SIBIR:
-                url[0] = Constants.URL_SIBIR;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_SIBIR;
+                return getInfoForHockeyClub(url);
             case Constants.BARYS:
-                url[0] = Constants.URL_BARYS;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_BARYS;
+                return getInfoForHockeyClub(url);
             case Constants.AVTOMOBILIST:
-                url[0] = Constants.URL_AVTOMOBILIST;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_AVTOMOBILIST;
+                return getInfoForHockeyClub(url);
             case Constants.LADA:
-                url[0] = Constants.URL_LADA;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_LADA;
+                return getInfoForHockeyClub(url);
             case Constants.AMUR:
-                url[0] = Constants.URL_AMUR;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_AMUR;
+                return getInfoForHockeyClub(url);
             case Constants.UGRA:
-                url[0] = Constants.URL_UGRA;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_UGRA;
+                return getInfoForHockeyClub(url);
             case Constants.METALLURG_NOVOKUZNETSK:
-                url[0] = Constants.URL_METALLURG_NOVOKUZNETSK;
-                return getInfoForHockeyClub(url[0]);
+                url = Constants.URL_METALLURG_NOVOKUZNETSK;
+                return getInfoForHockeyClub(url);
             default:
                 return "Bad command! ".concat(command);
         }
@@ -283,7 +281,6 @@ public class Connection {
 
     public static String getKHLNews(String url) throws IOException {
 
-
         getResponseCode(url);
 
         Document doc = Jsoup.connect(url).get();
@@ -292,31 +289,28 @@ public class Connection {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("Новости КХЛ").append("\n");
-
-        String news_middle_block;
-        String news_m_left;
-        String news_m_right;
+        String newsUrl;
 
         for (Element elem : elements) {
 
-            if (elem.attr("class").equals("b-middle_block")) {
-                news_middle_block = elem.select("a").first().attr("abs:href");
-                stringBuilder.append(news_middle_block).append("\n");
-            }
+            if (elem.attr("class").equals("b-middle_block")
+                    || elem.attr("class").equals("b-short_block_cover m-left")
+                    || elem.attr("class").equals("b-short_block_cover m-right")) {
 
-            if (elem.attr("class").equals("b-short_block_cover m-left")) {
-                news_m_left = elem.select("a").first().attr("abs:href");
-                stringBuilder.append(news_m_left).append("\n");
-            }
+                newsUrl = elem.select("a").first().attr("abs:href");
 
-            if (elem.attr("class").equals("b-short_block_cover m-right")) {
-                news_m_right = elem.select("a").first().attr("abs:href");
-                stringBuilder.append(news_m_right).append("\n");
+                if (!NEWS_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
+                    System.err.println("Put to map: " + newsUrl);
+                    NEWS_MAP.put(newsUrl, "");
+                    stringBuilder.append(newsUrl).append("\n");
+                } else {
+                    System.err.println("Article is already exist! Looking for next article...");
+                }
             }
         }
+
         if (stringBuilder.toString().isEmpty()) {
-            return "Сегодня нет новостей в КХЛ";
+            return "";
         }
 
         return stringBuilder.toString();

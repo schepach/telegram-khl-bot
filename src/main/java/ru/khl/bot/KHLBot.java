@@ -7,6 +7,7 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import ru.khl.bot.constants.Constants;
+import ru.khl.bot.schedulers.ScheduledTask;
 import ru.khl.utils.KHLBotHelper;
 
 /**

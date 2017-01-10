@@ -4,7 +4,8 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.TelegramBotsApi;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.ScheduledTask;
+import ru.khl.bot.schedulers.ScheduledTask;
+import ru.khl.bot.schedulers.ScheduledTaskNews;
 
 import java.util.Timer;
 
@@ -27,8 +28,13 @@ public class Main {
             LOGGER.info("Start KHLBot...");
             System.out.println("See your log...");
             Timer time = new Timer();
+
             ScheduledTask scheduledTask = new ScheduledTask();
-            time.schedule(scheduledTask, 0, 3_600_000);
+            time.schedule(scheduledTask, 0, 3_600_000); // 1 час
+//            time.schedule(scheduledTask, 0, 30000); // 30 сек
+
+            ScheduledTaskNews scheduledTaskNews = new ScheduledTaskNews();
+            time.schedule(scheduledTaskNews, 0, 1_800_000); //30 мин
 
         } catch (TelegramApiException e) {
             LOGGER.error(e.getMessage());
