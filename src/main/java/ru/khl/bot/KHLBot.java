@@ -1,19 +1,19 @@
 package ru.khl.bot;
 
 import org.apache.log4j.Logger;
-import org.telegram.telegrambots.TelegramApiException;
+import org.json.JSONException;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.khl.bot.constants.Constants;
-import ru.khl.bot.schedulers.ScheduledTask;
-import ru.khl.utils.KHLBotHelper;
+import ru.khl.bot.utils.BotHelper;
 
 /**
  * Created by alexey on 01.11.16.
  */
-public class KHLBot extends TelegramLongPollingBot implements Runnable {
+public class KHLBot extends TelegramLongPollingBot {
 
     private static final Logger LOGGER = Logger.getLogger(KHLBot.class.getSimpleName());
 
@@ -28,9 +28,10 @@ public class KHLBot extends TelegramLongPollingBot implements Runnable {
             LOGGER.info("UserId: " + message.getFrom().getId());
             LOGGER.info("InputCommand: " + message.getText());
 
-            sendMsg(message, KHLBotHelper.checkUserText(message.getText().toUpperCase()));
+            sendMsg(message, BotHelper.checkUserText(message.getText().toUpperCase()));
         }
     }
+
 
     public String getBotUsername() {
         return "botname";
@@ -40,22 +41,19 @@ public class KHLBot extends TelegramLongPollingBot implements Runnable {
         return "bottoken";
     }
 
-
     private void sendMsg(Message message, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setText(text);
-        sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setReplayToMessageId(message.getMessageId());
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException ex) {
-            LOGGER.error(Constants.UNEXPECTED_ERROR.concat(ex.getMessage() + ex));
+        if (text != null && !text.isEmpty()) {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText(text);
+            sendMessage.setChatId(message.getChatId().toString());
+            sendMessage.setReplyToMessageId(message.getMessageId());
+            try {
+                sendMessage(sendMessage);
+            } catch (TelegramApiException | JSONException ex) {
+                LOGGER.info(Constants.UNEXPECTED_ERROR.concat(ex.getMessage() + ex));
+            } catch (Exception ex) {
+                LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
+            }
         }
-    }
-
-    @Override
-    public void run() {
-        ScheduledTask scheduledTask = new ScheduledTask();
-        scheduledTask.run();
     }
 }

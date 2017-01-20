@@ -1,9 +1,14 @@
 package ru.khl.bot.constants;
 
+import java.time.LocalTime;
+
 /**
  * Created by alexey on 01.11.16.
  */
 public class Constants {
+
+    public static final LocalTime START_TIME = LocalTime.of(9, 30, 0);
+    public static final LocalTime END_TIME = LocalTime.of(23, 59, 59);
 
     public static final String HC_CLUBS_LIST_EAST = "/HOCKEYCLUBSOFEAST";
     public static final String HC_CLUBS_LIST_WEST = "/HOCKEYCLUBSOFWEST";
@@ -83,7 +88,7 @@ public class Constants {
     public static final String HELP = "/HELP";
     public static final String START = "/START";
     public static final String ERROR_OTHER_INPUT = "Bad Command! /help - помощь";
-    public static final String UNEXPECTED_ERROR = "Unexpected error: ";
+    public static final String UNEXPECTED_ERROR = "Unexpected error occurred: ";
 
     public static final String HELP_TEXT =
             "I have next commands:\n" +
@@ -127,5 +132,4 @@ public class Constants {
                 "/UGRA \n" +
                 "/METALLURG_NOVOKUZNETSK";
     }
-
 }
