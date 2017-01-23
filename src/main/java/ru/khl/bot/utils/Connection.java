@@ -57,14 +57,14 @@ public class Connection {
             if (item != null) {
 
                 if (currentTime.equals(Constants.START_TIME)
-                        || (currentTime.isAfter(Constants.START_TIME) && currentTime.isBefore(LocalTime.of(11, 30, 0)))
+                        || (currentTime.isAfter(Constants.START_TIME) && currentTime.isBefore(LocalTime.of(10, 0, 0)))
                         || (currentTime.isBefore(LocalTime.of(0, 40, 0)))) {
                     timeFlag = true;
                 }
 
-                //Clear the map of KHL clubs from 1 to 3 at night...
-                if (currentTime.equals(LocalTime.of(1, 0, 0))
-                        || currentTime.isAfter(LocalTime.of(1, 0, 0)) && currentTime.isBefore(LocalTime.of(3, 0, 0))) {
+                //Clear the map of KHL clubs from 8:30 to 9:00 in the morning....
+                if (currentTime.equals(LocalTime.of(8, 30, 0))
+                        || currentTime.isAfter(LocalTime.of(8, 30, 0)) && currentTime.isBefore(LocalTime.of(9, 0, 0))) {
                     LOGGER.info("Clear GAME_MAP: ");
                     GAME_MAP.clear();
                     LOGGER.info("GAME_MAP is empty: ");
@@ -244,16 +244,6 @@ public class Connection {
 
     public static String getKHLNews(String url, LocalTime currentTime) throws IOException {
 
-        //Clear the map of KHL news from 3 to 4 at night...
-        if (currentTime.equals(LocalTime.of(3, 0, 0))
-                || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(4, 0, 0))) {
-
-            LOGGER.info("Clear NEWS_URL_MAP...");
-            NEWS_URL_MAP.clear();
-            LOGGER.info("NEWS_URL_MAP is empty...");
-            return "";
-        }
-
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
             return "";
@@ -275,12 +265,26 @@ public class Connection {
 
                 newsUrl = elem.select("a").first().attr("abs:href");
 
-                if (!NEWS_URL_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
-                    LOGGER.info("Put the article into map: " + newsUrl);
-                    NEWS_URL_MAP.put(newsUrl, "");
-                    stringBuilder.append(newsUrl).append("\n");
+                //Clear the map of KHL news from 03:00 to 04:00 at night...
+                if ((currentTime.equals(LocalTime.of(3, 0, 0))
+                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(4, 0, 0)))) {
+
+                    if (newsUrl != null && !newsUrl.isEmpty() && NEWS_URL_MAP.containsKey(newsUrl)) {
+                        LOGGER.info("Remove the news from map:  " + newsUrl);
+                        NEWS_URL_MAP.remove(newsUrl);
+                    } else {
+                        LOGGER.info("Put the article into map: " + newsUrl);
+                        NEWS_URL_MAP.put(newsUrl, "");
+                        stringBuilder.append(newsUrl).append("\n");
+                    }
                 } else {
-                    LOGGER.info("Article is already exist! Looking for next article...");
+                    if (!NEWS_URL_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
+                        LOGGER.info("Put the article into map: " + newsUrl);
+                        NEWS_URL_MAP.put(newsUrl, "");
+                        stringBuilder.append(newsUrl).append("\n");
+                    } else {
+                        LOGGER.info("Article is already exist! Looking for next article...");
+                    }
                 }
             }
         }
@@ -291,7 +295,6 @@ public class Connection {
 
         return stringBuilder.toString();
     }
-
 
     public static String getPhotoToday(String url) throws IOException {
 
