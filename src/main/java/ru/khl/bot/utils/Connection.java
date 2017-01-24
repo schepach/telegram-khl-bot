@@ -166,16 +166,19 @@ public class Connection {
                                 if (currentTime.equals(localTimeGame)
                                         || currentTime.isAfter(localTimeGame)) {
                                     LOGGER.info("Time is came! Need post!");
-                                    getInfo(stringBuilder, when, who, how);
+                                    getInfo(stringBuilder, when, who, how.concat(" ▶️"));
                                 } else {
                                     LOGGER.info("Time isn't came! Waiting starting the game...");
                                 }
                             } else {
-                                getInfo(stringBuilder, when, who, how);
+                                if (item.select("span").text().equals("0")) {
+                                    getInfo(stringBuilder, when, who, how.concat(" \u23F8"));
+                                } else {
+                                    getInfo(stringBuilder, when, who, how.concat(" ▶️"));
+                                }
                             }
                         } else {
-                            how = item.select("td").first().text();
-                            getInfo(stringBuilder, when, who, how);
+                            getInfo(stringBuilder, when, who, how.concat(" ▶️"));
                         }
                     }
                 }
