@@ -21,15 +21,13 @@ import java.util.regex.Pattern;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
-
+    private static final Pattern PATTERN_TIME_OF_GAME = Pattern.compile("(.*)(\\d{2}:\\d{2})(.*)");
+    private static final Pattern PATTERN_SCORE = Pattern.compile("(.*)(\\d{1,2}-\\d{1,2})(.*)");
+    private static final Pattern PATTERN_END_GAME = Pattern.compile("(.*)(\\d{1,2}(Б||ОТ)\\d{1,2})(.*)");
     private static Map<String, String> NEWS_URL_MAP = new HashMap<>();
     private static Map<String, String> GAME_MAP = new HashMap<>();
     private static Map<String, String> PHOTOS_URL_MAP = new HashMap<>();
     private static Map<String, String> VIDEOS_URL_MAP = new HashMap<>();
-
-    private static final Pattern PATTERN_TIME_OF_GAME = Pattern.compile("(.*)(\\d{2}:\\d{2})(.*)");
-    private static final Pattern PATTERN_SCORE = Pattern.compile("(.*)(\\d{1,2}-\\d{1,2})(.*)");
-    private static final Pattern PATTERN_END_GAME = Pattern.compile("(.*)(\\d{1,2}(Б||ОТ)\\d{1,2})(.*)");
 
     public static String getInfoForChannel(String url, LocalTime currentTime) throws IOException {
         Matcher m = null;
@@ -176,6 +174,7 @@ public class Connection {
                                 getInfo(stringBuilder, when, who, how);
                             }
                         } else {
+                            how = item.select("td").first().text();
                             getInfo(stringBuilder, when, who, how);
                         }
                     }
@@ -272,10 +271,6 @@ public class Connection {
                     if (newsUrl != null && !newsUrl.isEmpty() && NEWS_URL_MAP.containsKey(newsUrl)) {
                         LOGGER.info("Remove the news from map:  " + newsUrl);
                         NEWS_URL_MAP.remove(newsUrl);
-                    } else {
-                        LOGGER.info("Put the article into map: " + newsUrl);
-                        NEWS_URL_MAP.put(newsUrl, "");
-                        stringBuilder.append(newsUrl).append("\n");
                     }
                 } else {
                     if (!NEWS_URL_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
