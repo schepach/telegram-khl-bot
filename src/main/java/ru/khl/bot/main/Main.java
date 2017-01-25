@@ -36,7 +36,7 @@ public class Main {
             Timer time = new Timer();
 
             ScheduledKHLInfo scheduledKHLInfo = new ScheduledKHLInfo();
-            time.schedule(scheduledKHLInfo, 0, 600_000); // 10 min
+            time.schedule(scheduledKHLInfo, 0, 900_000); // 15 min
 
             ScheduledKHLNews scheduledKHLNews = new ScheduledKHLNews();
             time.schedule(scheduledKHLNews, 0, 300_000); //5 min

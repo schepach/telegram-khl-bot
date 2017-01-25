@@ -71,22 +71,28 @@ public class Connection {
 
                 if (item.attr("class").equals("b-matches_data_top")) {
                     when = item.select("td").text();
+                    LOGGER.info("WHEN = " + when);
                 }
 
                 if (item.attr("class").equals("b-matches_data_middle")) {
                     who = item.select("td").text();
-
+                    LOGGER.info("WHO before checking OT/SO = " + who);
+                    LOGGER.info("timeFlag = " + timeFlag);
                     if (!timeFlag) {
+                        LOGGER.info("Checking OT/SO because timeFlag is FALSE....");
                         if (when.contains("Сегодня") || when.contains("Сейчас") && !who.isEmpty()) {
                             m = PATTERN_END_GAME.matcher(who.replaceAll(" ", ""));
-
+                            LOGGER.info("m.matches() = " + m.matches());
                             if (m.matches()) {
                                 endGameFlag = true;
                                 LOGGER.info("OT/SO= " + who);
                                 LOGGER.info("The game end. endGameFlag = " + endGameFlag);
                             }
                         }
+                    } else {
+                        LOGGER.info("Don't checking OT/SO because timeFlag is TRUE....");
                     }
+                    LOGGER.info("SUMMARY: endGameFlag = " + endGameFlag);
                 }
 
                 if (item.attr("class").equals("b-matches_data_bottom")) {
