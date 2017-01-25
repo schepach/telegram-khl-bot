@@ -110,7 +110,6 @@ public class Connection {
 
                         if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
                             if (timeFlag) {
-                                how = item.select("td").first().text();
                                 getInfo(stringBuilder, when, who, how);
                                 continue;
                             } else {
@@ -184,7 +183,7 @@ public class Connection {
                                 }
                             }
                         } else {
-                            getInfo(stringBuilder, when, who, how.concat(" ▶️"));
+                            getInfo(stringBuilder, when, who, how);
                         }
                     }
                 }
