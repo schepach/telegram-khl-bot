@@ -56,7 +56,7 @@ public class Connection {
 
                 if (currentTime.equals(Constants.START_TIME)
                         || (currentTime.isAfter(Constants.START_TIME) && currentTime.isBefore(LocalTime.of(10, 0, 0)))
-                        || (currentTime.isBefore(LocalTime.of(0, 40, 0)))) {
+                        || (currentTime.isBefore(LocalTime.of(0, 20, 0)))) {
                     timeFlag = true;
                 }
 
@@ -68,35 +68,30 @@ public class Connection {
                     LOGGER.info("GAME_MAP is empty: ");
                 }
 
-
                 if (item.attr("class").equals("b-matches_data_top")) {
                     when = item.select("td").text();
-                    LOGGER.info("WHEN = " + when);
                 }
 
-                if (item.attr("class").equals("b-matches_data_middle")) {
+                if (item.attr("class").equals("b-matches_data_middle") && (when.contains("Сегодня") || when.contains("Сейчас"))) {
                     who = item.select("td").text();
                     LOGGER.info("WHO before checking OT/SO = " + who);
-                    LOGGER.info("timeFlag = " + timeFlag);
+                    LOGGER.info("timeFlag is " + timeFlag);
                     if (!timeFlag) {
-                        LOGGER.info("Checking OT/SO because timeFlag is FALSE....");
-                        if (when.contains("Сегодня") || when.contains("Сейчас") && !who.isEmpty()) {
-                            m = PATTERN_END_GAME.matcher(who.replaceAll(" ", ""));
-                            LOGGER.info("m.matches() = " + m.matches());
-                            if (m.matches()) {
-                                endGameFlag = true;
-                                LOGGER.info("OT/SO= " + who);
-                                LOGGER.info("The game end. endGameFlag = " + endGameFlag);
-                            }
+                        LOGGER.info("Checking OT/SO, because timeFlag is FALSE....");
+                        m = PATTERN_END_GAME.matcher(who.replaceAll(" ", ""));
+                        LOGGER.info("m.matches is " + m.matches());
+                        if (m.matches()) {
+                            endGameFlag = true;
+                            LOGGER.info("OT/SO = " + who);
+                            LOGGER.info("The game end. endGameFlag is " + endGameFlag);
                         }
                     } else {
-                        LOGGER.info("Don't checking OT/SO because timeFlag is TRUE....");
+                        LOGGER.info("Don't checking OT/SO, because timeFlag is TRUE....");
                     }
                     LOGGER.info("SUMMARY: endGameFlag = " + endGameFlag);
                 }
 
                 if (item.attr("class").equals("b-matches_data_bottom")) {
-
                     how = item.select("em").text();
                     int count = 0;
                     boolean flagGameFinished = false;
@@ -105,11 +100,12 @@ public class Connection {
 
                         LOGGER.info("WHO = " + who);
                         LOGGER.info("timeFlag  = " + timeFlag);
-                        LOGGER.info("Подготовка? = " + item.select("td").text().equals("подготовка"));
+                        LOGGER.info("Preparation to game is " + item.select("td").text().equals("подготовка"));
                         LOGGER.info("How is Empty? = " + how.isEmpty());
 
                         if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
                             if (timeFlag) {
+                                how = checkHow(item.select("td").text());
                                 getInfo(stringBuilder, when, who, how);
                                 continue;
                             } else {
@@ -150,38 +146,37 @@ public class Connection {
                                 GAME_MAP.put(who, "");
                             }
 
-                            LOGGER.info("flagGameFinished = " + flagGameFinished);
+                            LOGGER.info("flagGameFinished is " + flagGameFinished);
 
                             if (flagGameFinished) {
+                                LOGGER.info("So continue, because flagGameFinished is " + flagGameFinished);
                                 stringBuilder.append("");
                                 continue;
                             }
 
                             if (!flagGameFinished) {
-                                LOGGER.info("FlagGameFinished is false...Need check time...");
+                                LOGGER.info("Need check time, because flagGameFinished is " + flagGameFinished);
                                 timeGame = arrStr[0] + ":00";
                                 LOGGER.info("timeGame = " + timeGame);
                                 m = PATTERN_TIME_OF_GAME.matcher(timeGame.replaceAll(" ", ""));
                             }
 
                             if (m.matches() && timeGame != null && !flagGameFinished) {
+                                LOGGER.info("Checking game time...");
                                 LocalTime localTimeGame = LocalTime.parse(timeGame);
                                 LOGGER.info("LOCAL GAME TIME = " + localTimeGame);
 
-                                if (currentTime.equals(localTimeGame)
-                                        || currentTime.isAfter(localTimeGame)) {
-                                    LOGGER.info("Time is came! Need post!");
-                                    getInfo(stringBuilder, when, who, how.concat(" ▶️"));
-                                } else {
+                                if (currentTime.isBefore(localTimeGame)) {
                                     LOGGER.info("Time isn't came! Waiting starting the game...");
                                 }
                             } else {
-                                if (item.select("span").text().equals("0")) {
-                                    getInfo(stringBuilder, when, who, how.concat(" \u23F8"));
-                                } else {
-                                    getInfo(stringBuilder, when, who, how.concat(" ▶️"));
-                                }
+                                LOGGER.info("Check the next game...");
+                                String period = (checkHow(item.select("span").text()).replaceAll(";", ""));
+                                getInfo(stringBuilder, when, who, how.concat(period));
                             }
+                        } else if (how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
+                            how = checkHow(item.select("span").text()).replaceAll(";", "");
+                            getInfo(stringBuilder, when, who, how);
                         } else {
                             getInfo(stringBuilder, when, who, how);
                         }
@@ -258,24 +253,21 @@ public class Connection {
 
         Document doc = Jsoup.connect(url).get();
 
-        Elements elements = doc.getElementsByAttributeValue("class", "b-blocks_cover").first().getAllElements();
+        Elements elements = doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements();
 
         StringBuilder stringBuilder = new StringBuilder();
-
         String newsUrl;
+        boolean timeFlag = false;
 
         for (Element elem : elements) {
 
-            if (elem.attr("class").equals("b-middle_block")
-                    || elem.attr("class").equals("b-short_block_cover m-left")
-                    || elem.attr("class").equals("b-short_block_cover m-right")) {
+            if (elem.attr("class").equals("b-middle_block")) {
 
                 newsUrl = elem.select("a").first().attr("abs:href");
 
-                //Clear the map of KHL news from 03:00 to 04:00 at night...
+                //Clear the map of KHL news from 03:00 to 04:05 at night...
                 if ((currentTime.equals(LocalTime.of(3, 0, 0))
-                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(4, 0, 0)))) {
-
+                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(4, 5, 0)))) {
                     if (newsUrl != null && !newsUrl.isEmpty() && NEWS_URL_MAP.containsKey(newsUrl)) {
                         LOGGER.info("Remove the news from map:  " + newsUrl);
                         NEWS_URL_MAP.remove(newsUrl);
@@ -435,5 +427,37 @@ public class Connection {
         stringBuilder.append("Когда: ".concat(when)).append("\n");
         stringBuilder.append("Versus: ".concat(who)).append("\n");
         stringBuilder.append("Результат: ".concat(how)).append("\n-------\uD83C\uDFD2\uD83C\uDFC6\uD83D\uDCAA\uD83C\uDFFB-------\n");
+    }
+
+    private static String checkHow(String how) {
+        LOGGER.info("HOW BEFORE checking.... " + how);
+
+        switch (how) {
+            case "0" :
+                how = " \u23F8";
+                break;
+            case "1" :
+                how = " 1⃣";
+                break;
+            case "2" :
+                how = " 2⃣;";
+                break;
+            case "3" :
+                how = " 3⃣;";
+                break;
+            case "подготовка" :
+                how = "подготовка";
+                break;
+
+            //may be?
+            case "Б" :
+                how = " \uD83C\uDFD2";
+                break;
+            case "ОТ" :
+                how = " \uD83D\uDD50";
+                break;
+        }
+        LOGGER.info("HOW AFTER checking.... " + how);
+        return how;
     }
 }

@@ -29,7 +29,7 @@ public class ScheduledKHLNews extends TimerTask {
             LocalTime currentTime = LocalTime.of(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
             LOGGER.info("currentTimeForKHLNews = " + currentTime);
 
-            String newsUrl = Connection.getKHLNews(Constants.URL_KHL_NEWS, currentTime);
+            String newsUrl = Connection.getKHLNews(Constants.URL_KHL_INFO, currentTime);
 
             if (!newsUrl.isEmpty()) {
                 new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(newsUrl));

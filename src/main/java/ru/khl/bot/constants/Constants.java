@@ -82,7 +82,6 @@ public class Constants {
 
     public static final String URL_KHL_INFO = "http://www.khl.ru/";
     public static final String URL_STANDINGS = "http://www.khl.ru/standings/";
-    public static final String URL_KHL_NEWS = "http://www.khl.ru/news/";
 
     public static final String START_TEXT = "Enter your favorite conference. /help - помощь";
     public static final String HELP = "/HELP";
