@@ -23,7 +23,7 @@ public class Connection {
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
     private static final Pattern PATTERN_TIME_OF_GAME = Pattern.compile("(.*)(\\d{2}:\\d{2})(.*)");
     private static final Pattern PATTERN_SCORE = Pattern.compile("(.*)(\\d{1,2}-\\d{1,2})(.*)");
-    private static final Pattern PATTERN_END_GAME = Pattern.compile("(.*)(\\d{1,2}(Б||ОТ)\\d{1,2})(.*)");
+    private static final Pattern PATTERN_END_GAME = Pattern.compile("(.*)(\\d{1,2}(Б||ОТ||OT||OТ||ОT)\\d{1,2})(.*)");
     private static Map<String, String> NEWS_URL_MAP = new HashMap<>();
     private static Map<String, String> GAME_MAP = new HashMap<>();
     private static Map<String, String> PHOTOS_URL_MAP = new HashMap<>();
@@ -79,7 +79,8 @@ public class Connection {
                     if (!timeFlag) {
                         LOGGER.info("Checking OT/SO, because timeFlag is FALSE....");
                         m = PATTERN_END_GAME.matcher(who.replaceAll(" ", ""));
-                        LOGGER.info("m.matches is " + m.matches());
+                        LOGGER.info("WHO after replacing = " + who.replaceAll(" ", ""));
+                        LOGGER.info("WHO contains ОТ or Б? " + m.matches());
                         if (m.matches()) {
                             endGameFlag = true;
                             LOGGER.info("OT/SO = " + who);
@@ -433,27 +434,27 @@ public class Connection {
         LOGGER.info("HOW BEFORE checking.... " + how);
 
         switch (how) {
-            case "0" :
+            case "0":
                 how = " \u23F8";
                 break;
-            case "1" :
+            case "1":
                 how = " 1⃣";
                 break;
-            case "2" :
+            case "2":
                 how = " 2⃣;";
                 break;
-            case "3" :
+            case "3":
                 how = " 3⃣;";
                 break;
-            case "подготовка" :
+            case "подготовка":
                 how = "подготовка";
                 break;
 
             //may be?
-            case "Б" :
+            case "б":
                 how = " \uD83C\uDFD2";
                 break;
-            case "ОТ" :
+            case "от":
                 how = " \uD83D\uDD50";
                 break;
         }
