@@ -258,7 +258,6 @@ public class Connection {
 
         StringBuilder stringBuilder = new StringBuilder();
         String newsUrl;
-        boolean timeFlag = false;
 
         for (Element elem : elements) {
 
@@ -266,20 +265,24 @@ public class Connection {
 
                 newsUrl = elem.select("a").first().attr("abs:href");
 
-                //Clear the map of KHL news from 03:00 to 04:05 at night...
+                //Clear the map of KHL news from 03:00 to 12:00 at night if the came a new article...
                 if ((currentTime.equals(LocalTime.of(3, 0, 0))
-                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(4, 5, 0)))) {
-                    if (newsUrl != null && !newsUrl.isEmpty() && NEWS_URL_MAP.containsKey(newsUrl)) {
-                        LOGGER.info("Remove the news from map:  " + newsUrl);
-                        NEWS_URL_MAP.remove(newsUrl);
+                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(12, 0, 0)))) {
+                    if (newsUrl != null && !newsUrl.isEmpty() && !NEWS_URL_MAP.containsKey(newsUrl)) {
+                        LOGGER.info("The time from 3:00 to 12:00...");
+                        LOGGER.info("Clear the map of KHL news:  " + newsUrl);
+                        NEWS_URL_MAP.clear();
+                        LOGGER.info("Put the new article into map: " + newsUrl);
+                        NEWS_URL_MAP.put(newsUrl, "");
+                        stringBuilder.append(newsUrl).append("\n");
                     }
                 } else {
                     if (!NEWS_URL_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
-                        LOGGER.info("Put the article into map: " + newsUrl);
+                        LOGGER.info("Put the new article into map: " + newsUrl);
                         NEWS_URL_MAP.put(newsUrl, "");
                         stringBuilder.append(newsUrl).append("\n");
                     } else {
-                        LOGGER.info("Article is already exist! Looking for next article...");
+                        LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
                     }
                 }
             }
