@@ -22,10 +22,15 @@ public class ScheduledKHLVideo extends TimerTask {
     @Override
     public void run() {
         try {
-            String videoUrl = Connection.getVideo(Constants.URL_KHL_INFO);
+            StringBuilder sbVideoUrl = Connection.getVideo(Constants.URL_KHL_INFO);
 
-            if (!videoUrl.isEmpty()) {
-                new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(videoUrl));
+            if (!sbVideoUrl.toString().isEmpty()) {
+                String[] lines = sbVideoUrl.toString().split("\\n");
+                for (String url : lines) {
+                    new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(url));
+                }
+            } else {
+                LOGGER.info("SB is empty, waiting...");
             }
 
         } catch (TelegramApiException | IOException | JSONException e) {

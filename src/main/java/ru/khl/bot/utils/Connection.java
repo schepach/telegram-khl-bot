@@ -332,42 +332,50 @@ public class Connection {
     }
 
 
-    public static String getVideo(String url) throws IOException {
+    public static StringBuilder getVideo(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
-            return "";
+            return new StringBuilder();
         }
 
-
         Document doc = Jsoup.connect(url).get();
-
         Elements elements = doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements();
 
-        StringBuilder photoTodaySb = new StringBuilder();
-
+        StringBuilder videoTodaySb = new StringBuilder();
         String videoUrl;
 
         for (Element elem : elements) {
 
             if (elem.attr("class").equals("b-middle_block")) {
-
                 videoUrl = elem.select("a").first().attr("abs:href");
-                if (videoUrl != null && !videoUrl.isEmpty() && !VIDEOS_URL_MAP.containsKey(videoUrl)) {
-                    LOGGER.info("Put the video into map..." + videoUrl);
-                    VIDEOS_URL_MAP.put(videoUrl, "");
-                    photoTodaySb.append(videoUrl).append("\n");
-                } else {
-                    LOGGER.info("Video is already exist! Looking for next video...");
+                checkVideoUrl(videoUrl, videoTodaySb);
+            }
+
+            if (elem.attr("class").equals("b-short_block")) {
+                System.err.println(elem.attr("class"));
+                for (Element current : elem.getAllElements().select("div")) {
+                    videoUrl = current.select("a").attr("abs:href");
+                    checkVideoUrl(videoUrl, videoTodaySb);
                 }
             }
         }
 
-        if (photoTodaySb.toString().isEmpty()) {
-            return "";
+        if (videoTodaySb.toString().isEmpty()) {
+            return new StringBuilder();
         }
 
-        return photoTodaySb.toString();
+        return videoTodaySb;
+    }
+
+    private static void checkVideoUrl(String videoUrl, StringBuilder sb) {
+        if (videoUrl != null && !videoUrl.isEmpty() && !VIDEOS_URL_MAP.containsKey(videoUrl)) {
+            LOGGER.info("Put the video " + videoUrl + "into map...");
+            VIDEOS_URL_MAP.put(videoUrl, "");
+            sb.append(videoUrl).append("\n");
+        } else {
+            LOGGER.info("Video " + videoUrl + " is already exist! Looking for next video...");
+        }
     }
 
 
