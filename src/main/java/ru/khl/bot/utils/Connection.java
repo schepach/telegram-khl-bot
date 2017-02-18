@@ -263,7 +263,7 @@ public class Connection {
 
             if (elem.attr("class").equals("b-short_block")) {
                 for (Element current : elem.getAllElements().select("div")) {
-                    videoUrl = current.select("a").first().attr("abs:href");
+                    videoUrl = current.select("a").attr("abs:href");
                     checkVideoUrl(videoUrl, videoTodaySb);
                 }
             }
