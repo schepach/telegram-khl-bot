@@ -51,7 +51,7 @@ public class ScheduledKHLInfo extends TimerTask {
                 if (!textStandingInfo.isEmpty()) {
                     new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textStandingInfo));
                 }
-            } else if (currentTime.isAfter(LocalTime.of(0, 30, 0)) && currentTime.isBefore(Constants.START_TIME)) {
+            } else if (currentTime.isAfter(LocalTime.of(0, 40, 0)) && currentTime.isBefore(Constants.START_TIME)) {
                 LOGGER.info("Waiting....");
             }
         } catch (TelegramApiException | IOException | JSONException e) {

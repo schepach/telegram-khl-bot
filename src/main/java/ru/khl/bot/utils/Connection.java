@@ -55,6 +55,7 @@ public class Connection {
                         && (when.contains("Сегодня")
                         || when.contains("Сейчас"))) {
                     who = item.select("td").text();
+                    LOGGER.info("WHO = " + who);
                 }
 
                 if (item.attr("class").equals("b-matches_data_bottom")) {
@@ -75,6 +76,7 @@ public class Connection {
                             } else if (how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
                                 how = checkHow(item.select("span").text()).replaceAll(";", "");
                             }
+                            LOGGER.info("Put the game " + who + " into map...");
                             GAME_MAP.put(who, how);
                             getInfo(stringBuilder, when, who, how);
                         } else if (containFlag && !timeFlag) {
@@ -82,6 +84,7 @@ public class Connection {
                         } else if (containFlag && timeFlag) {
                             getInfo(stringBuilder, when, who, how);
                         }
+                        LOGGER.info("HOW = " + how);
                     }
                 }
             }
@@ -253,7 +256,6 @@ public class Connection {
             }
 
             if (elem.attr("class").equals("b-short_block")) {
-                System.err.println(elem.attr("class"));
                 for (Element current : elem.getAllElements().select("div")) {
                     videoUrl = current.select("a").attr("abs:href");
                     checkVideoUrl(videoUrl, videoTodaySb);
