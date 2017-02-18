@@ -171,21 +171,25 @@ public class Connection {
                 //Clear the map of KHL news from 03:00 to 12:00 at night if the came a new article...
                 if ((currentTime.equals(LocalTime.of(3, 0, 0))
                         || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(12, 0, 0)))) {
-                    if (newsUrl != null && !newsUrl.isEmpty() && !NEWS_URL_MAP.containsKey(newsUrl)) {
-                        LOGGER.info("The time from 3:00 to 12:00...");
-                        LOGGER.info("Clear the map of KHL news:  " + newsUrl);
-                        NEWS_URL_MAP.clear();
-                        LOGGER.info("Put the new article into map: " + newsUrl);
-                        NEWS_URL_MAP.put(newsUrl, "");
-                        stringBuilder.append(newsUrl).append("\n");
+                    if (newsUrl != null && !newsUrl.isEmpty()) {
+                        if (!NEWS_URL_MAP.containsKey(newsUrl)) {
+                            LOGGER.info("The time from 3:00 to 12:00...");
+                            LOGGER.info("Clear the map of KHL news:  " + newsUrl);
+                            NEWS_URL_MAP.clear();
+                            LOGGER.info("Put the new article into map: " + newsUrl);
+                            NEWS_URL_MAP.put(newsUrl, "");
+                            stringBuilder.append(newsUrl).append("\n");
+                        }
                     }
                 } else {
-                    if (!NEWS_URL_MAP.containsKey(newsUrl) && newsUrl != null && !newsUrl.isEmpty()) {
-                        LOGGER.info("Put the new article into map: " + newsUrl);
-                        NEWS_URL_MAP.put(newsUrl, "");
-                        stringBuilder.append(newsUrl).append("\n");
-                    } else {
-                        LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
+                    if (newsUrl != null && !newsUrl.isEmpty()) {
+                        if (!NEWS_URL_MAP.containsKey(newsUrl)) {
+                            LOGGER.info("Put the new article " + newsUrl + " into map: " + newsUrl);
+                            NEWS_URL_MAP.put(newsUrl, "");
+                            stringBuilder.append(newsUrl).append("\n");
+                        } else {
+                            LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
+                        }
                     }
                 }
             }
@@ -218,12 +222,14 @@ public class Connection {
 
             photoUrl = elem.attr("abs:href");
 
-            if (photoUrl != null && !photoUrl.isEmpty() && !PHOTOS_URL_MAP.containsKey(photoUrl)) {
-                LOGGER.info("Put the photo into map..." + photoUrl);
-                PHOTOS_URL_MAP.put(photoUrl, "");
-                photoTodaySb.append("ФОТО ДНЯ \n").append(photoUrl).append("\n");
-            } else {
-                LOGGER.info("Photo is already exist! Looking for next photoDay...");
+            if (photoUrl != null && !photoUrl.isEmpty()) {
+                if (!PHOTOS_URL_MAP.containsKey(photoUrl)) {
+                    LOGGER.info("Put the photo " + photoUrl + " into map...");
+                    PHOTOS_URL_MAP.put(photoUrl, "");
+                    photoTodaySb.append("ФОТО ДНЯ \n").append(photoUrl).append("\n");
+                } else {
+                    LOGGER.info("Photo " + photoUrl + " is already exist! Looking for next photoDay...");
+                }
             }
         }
 
@@ -257,7 +263,7 @@ public class Connection {
 
             if (elem.attr("class").equals("b-short_block")) {
                 for (Element current : elem.getAllElements().select("div")) {
-                    videoUrl = current.select("a").attr("abs:href");
+                    videoUrl = current.select("a").first().attr("abs:href");
                     checkVideoUrl(videoUrl, videoTodaySb);
                 }
             }
@@ -271,12 +277,14 @@ public class Connection {
     }
 
     private static void checkVideoUrl(String videoUrl, StringBuilder sb) {
-        if (videoUrl != null && !videoUrl.isEmpty() && !VIDEOS_URL_MAP.containsKey(videoUrl)) {
-            LOGGER.info("Put the video " + videoUrl + "into map...");
-            VIDEOS_URL_MAP.put(videoUrl, "");
-            sb.append(videoUrl).append("\n");
-        } else {
-            LOGGER.info("Video " + videoUrl + " is already exist! Looking for next video...");
+        if (videoUrl != null && !videoUrl.isEmpty()) {
+            if (!VIDEOS_URL_MAP.containsKey(videoUrl)) {
+                LOGGER.info("Put the video " + videoUrl + "into map...");
+                VIDEOS_URL_MAP.put(videoUrl, "");
+                sb.append(videoUrl).append("\n");
+            } else {
+                LOGGER.info("Video " + videoUrl + " is already exist! Looking for next video...");
+            }
         }
     }
 
