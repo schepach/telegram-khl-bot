@@ -32,13 +32,18 @@ public class ScheduledKHLInfo extends TimerTask {
             String textKHLInfo;
             String textStandingInfo;
 
-            if (currentTime.equals(Constants.START_TIME) || (currentTime.isAfter(Constants.START_TIME) && currentTime.isBefore(Constants.END_TIME))) {
-                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, currentTime);
+            if (currentTime.equals(Constants.START_TIME)
+                    || (currentTime.isAfter(Constants.START_TIME)
+                    && currentTime.isBefore(Constants.END_TIME))) {
+                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, false);
                 if (!textKHLInfo.isEmpty()) {
                     new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textKHLInfo));
                 }
-            } else if (currentTime.isBefore(LocalTime.of(0, 40, 0))) {
-                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, currentTime);
+            } else if (currentTime.equals(LocalTime.of(0, 35, 0))
+                    || currentTime.isAfter(LocalTime.of(0, 35, 0))
+                    && currentTime.isBefore(LocalTime.of(0, 40, 0))) {
+
+                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, true);
                 textStandingInfo = Connection.getStandingsInfo(Constants.URL_STANDINGS);
                 if (!textKHLInfo.isEmpty()) {
                     new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textKHLInfo));

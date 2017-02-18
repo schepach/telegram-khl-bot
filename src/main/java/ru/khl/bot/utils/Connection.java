@@ -5,14 +5,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import ru.khl.bot.constants.Constants;
 
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by alexey on 01.11.16.
@@ -21,16 +18,12 @@ import java.util.regex.Pattern;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
-    private static final Pattern PATTERN_TIME_OF_GAME = Pattern.compile("(.*)(\\d{2}:\\d{2})(.*)");
-    private static final Pattern PATTERN_SCORE = Pattern.compile("(.*)(\\d{1,2}-\\d{1,2})(.*)");
-    private static final Pattern PATTERN_END_GAME = Pattern.compile("(.*)(\\d{1,2}(Б||ОТ||OT||OТ||ОT)\\d{1,2})(.*)");
     private static Map<String, String> NEWS_URL_MAP = new HashMap<>();
     private static Map<String, String> GAME_MAP = new HashMap<>();
     private static Map<String, String> PHOTOS_URL_MAP = new HashMap<>();
     private static Map<String, String> VIDEOS_URL_MAP = new HashMap<>();
 
-    public static String getInfoForChannel(String url, LocalTime currentTime) throws IOException {
-        Matcher m = null;
+    public static String getInfoForChannel(String url, boolean timeFlag) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
@@ -47,138 +40,46 @@ public class Connection {
         String who = "";
         String how;
 
-        boolean timeFlag = false;
-        boolean endGameFlag = false;
 
         for (Element item : elements) {
 
+            boolean containFlag = false;
+
             if (item != null) {
-
-                if (currentTime.equals(Constants.START_TIME)
-                        || (currentTime.isAfter(Constants.START_TIME) && currentTime.isBefore(LocalTime.of(10, 0, 0)))
-                        || (currentTime.isBefore(LocalTime.of(0, 20, 0)))) {
-                    timeFlag = true;
-                }
-
-                //Clear the map of KHL clubs from 8:30 to 9:00 in the morning....
-                if (currentTime.equals(LocalTime.of(8, 30, 0))
-                        || currentTime.isAfter(LocalTime.of(8, 30, 0)) && currentTime.isBefore(LocalTime.of(9, 0, 0))) {
-                    LOGGER.info("Clear GAME_MAP: ");
-                    GAME_MAP.clear();
-                    LOGGER.info("GAME_MAP is empty: ");
-                }
 
                 if (item.attr("class").equals("b-matches_data_top")) {
                     when = item.select("td").text();
                 }
 
-                if (item.attr("class").equals("b-matches_data_middle") && (when.contains("Сегодня") || when.contains("Сейчас"))) {
+                if (item.attr("class").equals("b-matches_data_middle")
+                        && (when.contains("Сегодня")
+                        || when.contains("Сейчас"))) {
                     who = item.select("td").text();
-                    LOGGER.info("WHO before checking OT/SO = " + who);
-                    LOGGER.info("timeFlag is " + timeFlag);
-                    if (!timeFlag) {
-                        LOGGER.info("Checking OT/SO, because timeFlag is FALSE....");
-                        m = PATTERN_END_GAME.matcher(who.replaceAll(" ", ""));
-                        LOGGER.info("WHO after replacing = " + who.replaceAll(" ", ""));
-                        LOGGER.info("WHO contains ОТ or Б? " + m.matches());
-                        if (m.matches()) {
-                            endGameFlag = true;
-                            LOGGER.info("OT/SO = " + who);
-                            LOGGER.info("The game end. endGameFlag is " + endGameFlag);
-                        }
-                    } else {
-                        LOGGER.info("Don't checking OT/SO, because timeFlag is TRUE....");
-                    }
-                    LOGGER.info("SUMMARY: endGameFlag = " + endGameFlag);
                 }
 
                 if (item.attr("class").equals("b-matches_data_bottom")) {
                     how = item.select("em").text();
-                    int count = 0;
-                    boolean flagGameFinished = false;
 
                     if (when.contains("Сегодня") || when.contains("Сейчас")) {
 
-                        LOGGER.info("WHO = " + who);
-                        LOGGER.info("timeFlag  = " + timeFlag);
-                        LOGGER.info("Preparation to game is " + item.select("td").text().equals("подготовка"));
-                        LOGGER.info("How is Empty? = " + how.isEmpty());
-
-                        if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
-                            if (timeFlag) {
-                                how = checkHow(item.select("td").text());
-                                getInfo(stringBuilder, when, who, how);
-                                continue;
-                            } else {
-                                LOGGER.info("Time isn't came! Waiting starting the game...");
-                                continue;
+                        for (Map.Entry<String, String> entry : GAME_MAP.entrySet()) {
+                            if (entry.getKey().equals(who) && entry.getValue().equals(how)) {
+                                LOGGER.info("The game already exist into map, go on....");
+                                containFlag = true;
                             }
                         }
 
-                        if (!how.isEmpty() && !timeFlag) {
-
-                            String[] arrStr = how.split(" ");
-                            String timeGame = null;
-
-                            for (String str1 : arrStr) {
-
-                                LOGGER.info("HOW: " + str1);
-
-                                m = PATTERN_SCORE.matcher(str1.replaceAll(" ", ""));
-                                LOGGER.info("m.matches(): " + m.matches());
-                                if (m.matches()) {
-                                    count++;
-                                }
+                        if (!containFlag && !timeFlag) {
+                            if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
+                                how = checkHow(item.select("td").text());
+                            } else if (how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
+                                how = checkHow(item.select("span").text()).replaceAll(";", "");
                             }
-                            LOGGER.info("Count = " + count);
-
-                            if (GAME_MAP.containsKey(who)) {
-                                LOGGER.info("The game already exist into map, go on....");
-                                flagGameFinished = true;
-                            }
-
-                            if ((count == 4 || count == 5) && endGameFlag && !GAME_MAP.containsKey(who)) {
-                                LOGGER.info("Put the game into map (OT/SO)....");
-                                GAME_MAP.put(who, "");
-                            }
-
-                            if (count == 3 && !GAME_MAP.containsKey(who)) {
-                                LOGGER.info("Put the game into map....");
-                                GAME_MAP.put(who, "");
-                            }
-
-                            LOGGER.info("flagGameFinished is " + flagGameFinished);
-
-                            if (flagGameFinished) {
-                                LOGGER.info("So continue, because flagGameFinished is " + flagGameFinished);
-                                stringBuilder.append("");
-                                continue;
-                            }
-
-                            if (!flagGameFinished) {
-                                LOGGER.info("Need check time, because flagGameFinished is " + flagGameFinished);
-                                timeGame = arrStr[0] + ":00";
-                                LOGGER.info("timeGame = " + timeGame);
-                                m = PATTERN_TIME_OF_GAME.matcher(timeGame.replaceAll(" ", ""));
-                            }
-
-                            if (m.matches() && timeGame != null && !flagGameFinished) {
-                                LOGGER.info("Checking game time...");
-                                LocalTime localTimeGame = LocalTime.parse(timeGame);
-                                LOGGER.info("LOCAL GAME TIME = " + localTimeGame);
-
-                                if (currentTime.isBefore(localTimeGame)) {
-                                    LOGGER.info("Time isn't came! Waiting starting the game...");
-                                }
-                            } else {
-                                LOGGER.info("Check the next game...");
-                                String period = (checkHow(item.select("span").text()).replaceAll(";", ""));
-                                getInfo(stringBuilder, when, who, how.concat(period));
-                            }
-                        } else if (how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
-                            how = checkHow(item.select("span").text()).replaceAll(";", "");
+                            GAME_MAP.put(who, how);
                             getInfo(stringBuilder, when, who, how);
-                        } else {
+                        } else if (containFlag && !timeFlag) {
+                            LOGGER.info("Waiting...");
+                        } else if (containFlag && timeFlag) {
                             getInfo(stringBuilder, when, who, how);
                         }
                     }
@@ -194,7 +95,6 @@ public class Connection {
         LOGGER.info("INFO_ABOUT_GAME: " + stringBuilder.toString());
         return stringBuilder.toString();
     }
-
 
     public static String getStandingsInfo(String url) throws IOException {
 
