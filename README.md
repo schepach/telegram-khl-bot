@@ -14,7 +14,7 @@ Telegram bot for [KHL](http://khl.ru).
  - Information on the current games in the KHL.
  - Actual KHL news.
  - Actual KHL videos.
- - Standings by conference (from 00:00 until 00:20)
+ - Standings by conference
  - Category "Photo of the Day" (one time on day)
  
  
