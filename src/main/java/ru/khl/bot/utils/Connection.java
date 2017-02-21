@@ -59,9 +59,15 @@ public class Connection {
                 }
 
                 if (item.attr("class").equals("b-matches_data_bottom")) {
-                    how = item.select("em").text();
 
                     if (when.contains("Сегодня") || when.contains("Сейчас")) {
+                        how = item.select("em").text();
+
+                        if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
+                            how = checkHow(item.select("td").text());
+                        } else if (!how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
+                            how += checkHow(item.select("span").text()).replaceAll(";", "");
+                        }
 
                         for (Map.Entry<String, String> entry : GAME_MAP.entrySet()) {
                             if (entry.getKey().equals(who) && entry.getValue().equals(how)) {
@@ -71,11 +77,6 @@ public class Connection {
                         }
 
                         if (!containFlag && !timeFlag) {
-                            if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
-                                how = checkHow(item.select("td").text());
-                            } else if (how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
-                                how = checkHow(item.select("span").text()).replaceAll(";", "");
-                            }
                             LOGGER.info("Put the game " + who + " into map...");
                             GAME_MAP.put(who, how);
                             getInfo(stringBuilder, when, who, how);
