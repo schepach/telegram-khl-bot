@@ -39,19 +39,21 @@ public class ScheduledKHLInfo extends TimerTask {
                 if (!textKHLInfo.isEmpty()) {
                     new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textKHLInfo));
                 }
-            } else if (currentTime.equals(LocalTime.of(0, 35, 0))
-                    || currentTime.isAfter(LocalTime.of(0, 35, 0))
-                    && currentTime.isBefore(LocalTime.of(0, 40, 0))) {
-
-                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, true);
-                textStandingInfo = Connection.getStandingsInfo(Constants.URL_STANDINGS);
-                if (!textKHLInfo.isEmpty()) {
-                    new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textKHLInfo));
-                }
-                if (!textStandingInfo.isEmpty()) {
-                    new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textStandingInfo));
-                }
-            } else if (currentTime.isAfter(LocalTime.of(0, 40, 0)) && currentTime.isBefore(Constants.START_TIME)) {
+            }
+//            else if (currentTime.equals(LocalTime.of(0, 35, 0))
+//                    || currentTime.isAfter(LocalTime.of(0, 35, 0))
+//                    && currentTime.isBefore(LocalTime.of(0, 40, 0))) {
+//
+//                textKHLInfo = Connection.getInfoForChannel(Constants.URL_KHL_INFO, true);
+//                textStandingInfo = Connection.getStandingsInfo(Constants.URL_STANDINGS);
+//                if (!textKHLInfo.isEmpty()) {
+//                    new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textKHLInfo));
+//                }
+//                if (!textStandingInfo.isEmpty()) {
+//                    new KHLBot().sendMessage(new SendMessage().setChatId("@KHL_Info").setText(textStandingInfo));
+//                }
+//            }
+            else if (currentTime.isAfter(LocalTime.of(0, 0, 0)) && currentTime.isBefore(Constants.START_TIME)) {
                 LOGGER.info("Waiting....");
             }
         } catch (TelegramApiException | IOException | JSONException e) {
