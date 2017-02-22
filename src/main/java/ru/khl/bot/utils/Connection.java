@@ -65,7 +65,7 @@ public class Connection {
 
                         if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
                             how = checkHow(item.select("td").text());
-                        } else if (!how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
+                        } else if (how.isEmpty() || !how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
                             how += checkHow(item.select("span").text()).replaceAll(";", "");
                         }
 
