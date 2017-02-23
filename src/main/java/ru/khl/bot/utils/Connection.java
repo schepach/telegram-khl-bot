@@ -371,14 +371,14 @@ public class Connection {
             case "подготовка":
                 how = "подготовка";
                 break;
-
-            //may be?
             case "б":
                 how = " \uD83C\uDFD2";
                 break;
             case "от":
                 how = " \uD83D\uDD50";
                 break;
+            default:
+                how = "";
         }
         LOGGER.info("HOW AFTER checking.... " + how);
         return how;
