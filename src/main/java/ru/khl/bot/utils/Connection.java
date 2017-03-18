@@ -18,8 +18,8 @@ import java.util.Map;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
+    public static Map<String, String> GAME_MAP = new HashMap<>();
     private static Map<String, String> NEWS_URL_MAP = new HashMap<>();
-    private static Map<String, String> GAME_MAP = new HashMap<>();
     private static Map<String, String> PHOTOS_URL_MAP = new HashMap<>();
     private static Map<String, String> VIDEOS_URL_MAP = new HashMap<>();
 
@@ -62,6 +62,10 @@ public class Connection {
 
                     if (when.contains("Сегодня") || when.contains("Сейчас")) {
                         how = item.select("em").text();
+                        LOGGER.info("HOW = " + how);
+                        LOGGER.info("how.isEmpty()? " + how.isEmpty());
+                        LOGGER.info("item.select(\"td\").text().equals(\"подготовка\")? " + item.select("td").text().equals("подготовка"));
+                        LOGGER.info("!checkHow(item.select(\"span\").text()).replaceAll(\";\", \"\").isEmpty() ? " + !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty());
 
                         if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
                             how = checkHow(item.select("td").text());
@@ -85,7 +89,7 @@ public class Connection {
                         } else if (containFlag && timeFlag) {
                             getInfo(stringBuilder, when, who, how);
                         }
-                        LOGGER.info("HOW = " + how);
+                        LOGGER.info("Final HOW = " + how);
                     }
                 }
             }
