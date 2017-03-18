@@ -87,6 +87,8 @@ public class Connection {
                         } else if (containFlag && !timeFlag) {
                             LOGGER.info("Waiting...");
                         } else if (containFlag && timeFlag) {
+                            LOGGER.info("Put the game " + who + " into map...");
+                            GAME_MAP.put(who, how);
                             getInfo(stringBuilder, when, who, how);
                         }
                         LOGGER.info("Final HOW = " + how);
