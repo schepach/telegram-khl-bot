@@ -307,6 +307,7 @@ public class Connection {
         Elements elements = doc.select("dl");
 
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Подписывайтесь на канал KHL Info https://t.me/KHL_Info - там Вас ждет много интересного!").append("\n");
 
         String club1;
         String club2;
@@ -319,7 +320,7 @@ public class Connection {
             if (item.attr("class").equals("b-details m-club")) {
                 club1 = item.select("dd").select("h5").text();
                 if (!club1.isEmpty()) {
-                    stringBuilder.append("Команда: ".concat(club1)).append(" (").append(item.select("dd").select("p").first().text()).append(")").append("\n");
+                    stringBuilder.append("\n").append("Команда: ".concat(club1)).append(" (").append(item.select("dd").select("p").first().text()).append(")").append("\n");
                 }
             }
 
