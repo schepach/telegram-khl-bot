@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>3.0.1</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -66,6 +66,11 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Dependencies>org.apache.log4j</Dependencies>
+                        </manifestEntries>
+                    </archive>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
