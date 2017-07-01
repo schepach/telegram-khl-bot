@@ -1,10 +1,11 @@
-package ru.khl.bot.main;
+package ru.khl.bot.listener;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.generics.BotSession;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.schedulers.ScheduledKHLInfo;
@@ -12,28 +13,39 @@ import ru.khl.bot.schedulers.ScheduledKHLNews;
 import ru.khl.bot.schedulers.ScheduledKHLPhoto;
 import ru.khl.bot.schedulers.ScheduledKHLVideo;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import java.util.Timer;
+
 
 /**
  * Created by alexey on 01.11.16.
  */
-public class Main {
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getSimpleName());
 
-    public static void main(String[] args) {
+@WebListener
+public class KHLBotListener implements ServletContextListener {
+
+    private static final Logger LOGGER = Logger.getLogger(KHLBotListener.class.getSimpleName());
+
+    private BotSession botSession;
+    private Timer time;
+
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        LOGGER.info("ContextInitialized: botSession start....");
         ApiContextInitializer.init();
-        System.out.println("Initialization BotsApi....");
+        LOGGER.info("Initialization BotsApi....");
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
         try {
-            System.out.println("OK!");
-            System.out.println("Register KHLBot....");
-            telegramBotsApi.registerBot(new KHLBot());
-            System.out.println("Register done.");
-            System.out.println("Start KHLBot...");
+            LOGGER.info("OK!");
+            LOGGER.info("Register KHLBot....");
+            botSession = telegramBotsApi.registerBot(new KHLBot());
+            LOGGER.info("Register done.");
             LOGGER.info("Start KHLBot...");
-            System.out.println("See your log...");
-            Timer time = new Timer();
+
+            time = new Timer();
 
             ScheduledKHLInfo scheduledKHLInfo = new ScheduledKHLInfo();
             time.schedule(scheduledKHLInfo, 0, 300_000); //5 min
@@ -48,9 +60,20 @@ public class Main {
             time.schedule(scheduledKHLVideo, 0, 1_800_000); // 30 min
 
         } catch (TelegramApiException | JSONException e) {
-            LOGGER.info(Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e));
+            LOGGER.error(Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e));
         } catch (Exception ex) {
-            LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
+            LOGGER.error("EXCEPTION: " + ex.getMessage() + ex);
+        }
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        try {
+            LOGGER.info("ContextDestroyed: botSession stop....");
+            botSession.stop();
+            time.cancel();
+        } catch (Exception ex) {
+            LOGGER.error("EXCEPTION: " + ex.getMessage() + ex);
         }
     }
 }

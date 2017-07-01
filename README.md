@@ -20,20 +20,11 @@ Telegram bot for [KHL](http://khl.ru).
  
  ## Instructions for use bot
  
- **If you want run from IDE:**
+ **If you want run this telegram bot :**
  
  1. Download or clone [repository](https://github.com/schepach/TelegramKHLBot.git)
  2. Set your botname and token in `KHLBot.java`
- 3. Change path for log file `log4j.properties`
- 4. Run `Main.java`
+ 3. Build with `maven`
+ 4. Go to the `target` folder and deploy .ear file to the wildfly application server
  5. Enjoy!
- 
- **If you want run from console:**
- 
- 1. Download or clone [repository](https://github.com/schepach/TelegramKHLBot.git)
- 2. Set your botname and token in `KHLBot.java`
- 3. Change path for log file `log4j.properties`
- 4. Build with `maven`
- 5. Go to `target` folder and enter `java -jar *name*.jar`
- 6. Enjoy!
 

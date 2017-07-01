@@ -130,7 +130,7 @@ public class BotHelper {
         } catch (IOException | JSONException ex) {
             LOGGER.info(Constants.UNEXPECTED_ERROR.concat(ex.getMessage()) + ex);
         } catch (Exception ex) {
-            System.out.println("EXCEPTION: " + ex.getMessage() + ex);
+            LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
         }
         return Constants.ERROR_OTHER_INPUT;
     }
