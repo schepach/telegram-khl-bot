@@ -5,11 +5,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import redis.clients.jedis.Jedis;
+import ru.khl.bot.schedulers.ScheduledKHLInfo;
 
 import java.io.IOException;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by alexey on 01.11.16.
@@ -18,10 +19,7 @@ import java.util.Map;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
-    public static Map<String, String> GAME_MAP = new HashMap<>();
-    private static Map<String, String> NEWS_URL_MAP = new HashMap<>();
-    private static Map<String, String> PHOTOS_URL_MAP = new HashMap<>();
-    private static Map<String, String> VIDEOS_URL_MAP = new HashMap<>();
+    private static final Jedis REDIS_STORE = new Jedis("localhost", 1234);
 
     public static String getInfoForChannel(String url, boolean timeFlag) throws IOException {
 
@@ -39,6 +37,8 @@ public class Connection {
         String when = "";
         String who = "";
         String how;
+        int countTodayFinishedGames = 0;
+        int countTodayGames = 0;
 
 
         for (Element item : elements) {
@@ -61,6 +61,7 @@ public class Connection {
                 if (item.attr("class").equals("b-matches_data_bottom")) {
 
                     if (when.contains("Сегодня") || when.contains("Сейчас")) {
+                        countTodayGames++;
                         how = item.select("em").text();
                         LOGGER.info("HOW = " + how);
                         LOGGER.info("how.isEmpty()? " + how.isEmpty());
@@ -73,28 +74,45 @@ public class Connection {
                             how += checkHow(item.select("span").text()).replaceAll(";", "");
                         }
 
-                        for (Map.Entry<String, String> entry : GAME_MAP.entrySet()) {
-                            if (entry.getKey().equals(who) && entry.getValue().equals(how)) {
-                                LOGGER.info("The game already exist into map, go on....");
-                                containFlag = true;
+                        List<String> list = REDIS_STORE.lrange(who, 0, REDIS_STORE.dbSize());
+
+                        if (list != null) {
+                            for (String elem : list) {
+                                if (how.equals(elem)) {
+                                    LOGGER.info("The game already exist into map, go on....");
+                                    containFlag = true;
+                                }
                             }
                         }
 
                         if (!containFlag && !timeFlag) {
-                            LOGGER.info("Put the game " + who + " into map...");
-                            GAME_MAP.put(who, how);
+                            LOGGER.info("Put the game " + who + " into store...");
+                            REDIS_STORE.lpush(who, how);
                             getInfo(stringBuilder, when, who, how);
                         } else if (containFlag && !timeFlag) {
                             LOGGER.info("Waiting...");
+                            countTodayFinishedGames++;
+                        } else if (!containFlag && timeFlag) {
+                            LOGGER.info("Waiting...");
                         } else if (containFlag && timeFlag) {
-                            LOGGER.info("Put the game " + who + " into map...");
-                            GAME_MAP.put(who, how);
+                            LOGGER.info("Delete the game " + who + " into store...");
+                            REDIS_STORE.del(who);
                             getInfo(stringBuilder, when, who, how);
                         }
                         LOGGER.info("Final HOW = " + how);
                     }
                 }
             }
+        }
+
+        LOGGER.info("countTodayFinishedGames = " + countTodayFinishedGames);
+        LOGGER.info("countTodayGames = " + countTodayGames);
+
+        if (countTodayFinishedGames == countTodayGames) {
+            ScheduledKHLInfo.stopCheckingInfoAfterAllGamesFinished = true;
+            LOGGER.info("All today games finished...");
+            LOGGER.info("Waiting summary of all finished games...");
+            return "";
         }
 
         if (stringBuilder.toString().isEmpty()) {
@@ -106,6 +124,7 @@ public class Connection {
         return stringBuilder.toString();
     }
 
+    //TODO: допилить standings
     public static String getStandingsInfo(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
@@ -118,40 +137,34 @@ public class Connection {
         Elements elements = doc.getElementsByAttributeValue("id", "tab-standings-conference");
 
         StringBuilder stringBuilder = new StringBuilder();
-
-        HashMap<String, String> hashMap = new HashMap<>();
-        String conferenceOfWest = "west";
-        String conferenceOfEast = "east";
-
-        String position;
+        String conferenceOfWest;
+        String conferenceOfEast;
+        String position = "0";
         String club;
         String points;
 
-        for (Element elem : elements.select("div").select("h4")) {
-            if (hashMap.isEmpty()) {
-                hashMap.put(conferenceOfWest, elem.text().substring(22));
-            } else {
-                hashMap.put(conferenceOfEast, elem.text().substring(22));
-            }
+        for (Element elem : elements.select("div").attr("class", "b-data_row")) {
+//            LOGGER.info("H4 = " + elem.select("h4").first().text());
         }
-        stringBuilder.append("\n-------------------\n").append(hashMap.get(conferenceOfWest)).append("\n-------------------\n");
 
+        for (Element elem1 : elements.select("div").attr("class", "b-data_row").select("div").attr("class", "k-data_table").select("table").select("tbody").select("tr")) {
 
-        for (Element elem : elements.select("table").select("tbody").select("tr")) {
-
-            position = elem.select("td").first().text();
+            if (elem1.select("td").first().text() != null && !elem1.select("td").first().text().isEmpty()) {
+                position = elem1.select("td").first().text();
+            }
             stringBuilder.append(position).append(". ");
 
-            club = elem.select("span").text();
+            club = elem1.select("span").text();
             stringBuilder.append(club).append(" ");
 
-            points = elem.select("td").select("b").text();
-            if (club.equals("Динамо Р")) {
-                stringBuilder.append("-").append(points).append("\n-------------------\n").append(hashMap.get(conferenceOfEast)).append("\n-------------------\n");
-            } else {
-                stringBuilder.append("-").append(points).append("\n");
-            }
+            points = elem1.select("td").select("b").text();
+            stringBuilder.append("-").append(points).append("\n");
+
+//            if (elem1.select("span").is())
+
         }
+
+
         return stringBuilder.toString();
     }
 
@@ -174,31 +187,16 @@ public class Connection {
             if (elem.attr("class").equals("b-middle_block")) {
 
                 newsUrl = elem.select("a").first().attr("abs:href");
-
-                //Clear the map of KHL news from 03:00 to 12:00 at night if the came a new article...
-                if ((currentTime.equals(LocalTime.of(3, 0, 0))
-                        || currentTime.isAfter(LocalTime.of(3, 0, 0)) && currentTime.isBefore(LocalTime.of(12, 0, 0)))) {
-                    if (newsUrl != null && !newsUrl.isEmpty()) {
-                        if (!NEWS_URL_MAP.containsKey(newsUrl)) {
-                            LOGGER.info("The time from 3:00 to 12:00...");
-                            LOGGER.info("Clear the map of KHL news:  " + newsUrl);
-                            NEWS_URL_MAP.clear();
-                            LOGGER.info("Put the new article into map: " + newsUrl);
-                            NEWS_URL_MAP.put(newsUrl, "");
-                            stringBuilder.append(newsUrl).append("\n");
-                        }
-                    }
-                } else {
-                    if (newsUrl != null && !newsUrl.isEmpty()) {
-                        if (!NEWS_URL_MAP.containsKey(newsUrl)) {
-                            LOGGER.info("Put the new article " + newsUrl + " into map: " + newsUrl);
-                            NEWS_URL_MAP.put(newsUrl, "");
-                            stringBuilder.append(newsUrl).append("\n");
-                        } else {
-                            LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
-                        }
+                if (newsUrl != null && !newsUrl.isEmpty()) {
+                    if (!REDIS_STORE.exists(newsUrl)) {
+                        LOGGER.info("Put the new article " + newsUrl + " into map: " + newsUrl);
+                        REDIS_STORE.set(newsUrl, "");
+                        stringBuilder.append(newsUrl).append("\n");
+                    } else {
+                        LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
                     }
                 }
+
             }
         }
 
@@ -230,9 +228,9 @@ public class Connection {
             photoUrl = elem.attr("abs:href");
 
             if (photoUrl != null && !photoUrl.isEmpty()) {
-                if (!PHOTOS_URL_MAP.containsKey(photoUrl)) {
+                if (!REDIS_STORE.exists(photoUrl)) {
                     LOGGER.info("Put the photo " + photoUrl + " into map...");
-                    PHOTOS_URL_MAP.put(photoUrl, "");
+                    REDIS_STORE.set(photoUrl, "");
                     photoTodaySb.append("ФОТО ДНЯ \n").append(photoUrl).append("\n");
                 } else {
                     LOGGER.info("Photo " + photoUrl + " is already exist! Looking for next photoDay...");
@@ -285,9 +283,9 @@ public class Connection {
 
     private static void checkVideoUrl(String videoUrl, StringBuilder sb) {
         if (videoUrl != null && !videoUrl.isEmpty()) {
-            if (!VIDEOS_URL_MAP.containsKey(videoUrl)) {
+            if (!REDIS_STORE.exists(videoUrl)) {
                 LOGGER.info("Put the video " + videoUrl + "into map...");
-                VIDEOS_URL_MAP.put(videoUrl, "");
+                REDIS_STORE.set(videoUrl, "");
                 sb.append(videoUrl).append("\n");
             } else {
                 LOGGER.info("Video " + videoUrl + " is already exist! Looking for next video...");

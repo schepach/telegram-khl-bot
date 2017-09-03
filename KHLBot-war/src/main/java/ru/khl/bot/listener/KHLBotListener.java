@@ -48,7 +48,7 @@ public class KHLBotListener implements ServletContextListener {
             time = new Timer();
 
             ScheduledKHLInfo scheduledKHLInfo = new ScheduledKHLInfo();
-            time.schedule(scheduledKHLInfo, 0, 300_000); //5 min
+            time.schedule(scheduledKHLInfo, 0, 5000); //5 sec
 
             ScheduledKHLNews scheduledKHLNews = new ScheduledKHLNews();
             time.schedule(scheduledKHLNews, 0, 300_000); //5 min
