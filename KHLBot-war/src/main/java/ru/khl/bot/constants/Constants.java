@@ -1,14 +1,9 @@
 package ru.khl.bot.constants;
 
-import java.time.LocalTime;
-
 /**
  * Created by alexey on 01.11.16.
  */
 public class Constants {
-
-    public static final LocalTime START_TIME = LocalTime.of(9, 30, 0);
-    public static final LocalTime END_TIME = LocalTime.of(23, 59, 59);
 
     public static final String HC_CLUBS_LIST_EAST = "/HOCKEYCLUBSOFEAST";
     public static final String HC_CLUBS_LIST_WEST = "/HOCKEYCLUBSOFWEST";
@@ -81,7 +76,6 @@ public class Constants {
 
 
     public static final String URL_KHL_INFO = "http://www.khl.ru/";
-    public static final String URL_STANDINGS = "http://www.khl.ru/standings/";
 
     public static final String START_TEXT = "Enter your favorite conference. /help - помощь";
     public static final String HELP = "/HELP";

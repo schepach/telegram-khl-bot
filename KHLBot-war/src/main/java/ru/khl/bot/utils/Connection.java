@@ -1,15 +1,27 @@
 package ru.khl.bot.utils;
 
+import com.vk.api.sdk.client.VkApiClient;
+import com.vk.api.sdk.client.actors.ServiceActor;
+import com.vk.api.sdk.exceptions.ApiException;
+import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.api.sdk.httpclient.HttpTransportClient;
+import com.vk.api.sdk.objects.wall.WallPost;
+import com.vk.api.sdk.objects.wall.WallPostFull;
+import com.vk.api.sdk.objects.wall.WallpostAttachment;
+import com.vk.api.sdk.objects.wall.responses.GetResponse;
+import com.vk.api.sdk.queries.wall.WallGetFilter;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import redis.clients.jedis.Jedis;
-import ru.khl.bot.schedulers.ScheduledKHLInfo;
+import ru.khl.bot.model.Item;
+import ru.khl.bot.model.MessageStructure;
+import ru.khl.bot.model.WallItem;
 
 import java.io.IOException;
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,168 +30,174 @@ import java.util.List;
 
 public class Connection {
 
+    private static final int OWNER_ID = -1;
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
-    private static final Jedis REDIS_STORE = new Jedis("localhost", 1234);
+    private static final Jedis REDIS_STORE = new Jedis("localhost", 6379);
 
-    public static String getInfoForChannel(String url, boolean timeFlag) throws IOException {
+    public static MessageStructure getInfo() {
 
-        if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
-            return "";
+
+        VkApiClient vk = new VkApiClient(new HttpTransportClient());
+
+        MessageStructure messageStructure = new MessageStructure();
+        messageStructure.setWallItems(new ArrayList<WallItem>());
+        try {
+
+            ServiceActor actor = new ServiceActor(0, "");
+
+            GetResponse getResponse = vk.wall().get(actor)
+                    .ownerId(OWNER_ID)
+                    .count(20)
+//                    .offset(15) //смещение
+                    .filter(WallGetFilter.ALL)
+                    .execute();
+
+//            LOGGER.info("RESPONSE = " + getResponse);
+
+            for (WallPostFull postFull : getResponse.getItems()) {
+
+                WallItem wallItem = new WallItem();
+                wallItem.setItemList(new ArrayList<Item>());
+
+                if (postFull.getCopyHistory() != null) {
+                    checkRepost(postFull, wallItem);
+                } else {
+                    checkUsualPost(postFull, wallItem);
+                }
+                messageStructure.getWallItems().add(wallItem);
+            }
+            return messageStructure;
+        } catch (ApiException | ClientException ex) {
+            LOGGER.info("EXCEPTION: ", ex);
         }
+        return null;
+    }
 
-        Document doc = Jsoup.connect(url).get();
+    private static void checkRedisStore(Item item, WallItem wallItem) {
+        if (item.getLink() != null && !item.getLink().isEmpty()) {
+            String link = item.getLink();
 
-        Elements elements = doc.select("tr");
+            if (item.getPostType() == Item.PostType.KHL_PHOTO) {
+                link = link.substring(link.lastIndexOf("/") + 1, link.length());
+            }
 
-        StringBuilder stringBuilder = new StringBuilder();
+            List<String> redisList = REDIS_STORE.lrange(item.getPostType().value(), 0, REDIS_STORE.dbSize());
+            boolean isContains = false;
 
-        String when = "";
-        String who = "";
-        String how;
-        int countTodayFinishedGames = 0;
-        int countTodayGames = 0;
+            if (redisList != null && !redisList.isEmpty()) {
 
-
-        for (Element item : elements) {
-
-            boolean containFlag = false;
-
-            if (item != null) {
-
-                if (item.attr("class").equals("b-matches_data_top")) {
-                    when = item.select("td").text();
-                }
-
-                if (item.attr("class").equals("b-matches_data_middle")
-                        && (when.contains("Сегодня")
-                        || when.contains("Сейчас"))) {
-                    who = item.select("td").text();
-                    LOGGER.info("WHO = " + who);
-                }
-
-                if (item.attr("class").equals("b-matches_data_bottom")) {
-
-                    if (when.contains("Сегодня") || when.contains("Сейчас")) {
-                        countTodayGames++;
-                        how = item.select("em").text();
-                        LOGGER.info("HOW = " + how);
-                        LOGGER.info("how.isEmpty()? " + how.isEmpty());
-                        LOGGER.info("item.select(\"td\").text().equals(\"подготовка\")? " + item.select("td").text().equals("подготовка"));
-                        LOGGER.info("!checkHow(item.select(\"span\").text()).replaceAll(\";\", \"\").isEmpty() ? " + !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty());
-
-                        if (how.isEmpty() && (item.select("td").text().equals("подготовка"))) {
-                            how = checkHow(item.select("td").text());
-                        } else if (how.isEmpty() || !how.isEmpty() && !checkHow(item.select("span").text()).replaceAll(";", "").isEmpty()) {
-                            how += checkHow(item.select("span").text()).replaceAll(";", "");
-                        }
-
-                        List<String> list = REDIS_STORE.lrange(who, 0, REDIS_STORE.dbSize());
-
-                        if (list != null) {
-                            for (String elem : list) {
-                                if (how.equals(elem)) {
-                                    LOGGER.info("The game already exist into map, go on....");
-                                    containFlag = true;
-                                }
-                            }
-                        }
-
-                        if (!containFlag && !timeFlag) {
-                            LOGGER.info("Put the game " + who + " into store...");
-                            REDIS_STORE.lpush(who, how);
-                            getInfo(stringBuilder, when, who, how);
-                        } else if (containFlag && !timeFlag) {
-                            LOGGER.info("Waiting...");
-                            countTodayFinishedGames++;
-                        } else if (!containFlag && timeFlag) {
-                            LOGGER.info("Waiting...");
-                        } else if (containFlag && timeFlag) {
-                            LOGGER.info("Delete the game " + who + " into store...");
-                            REDIS_STORE.del(who);
-                            getInfo(stringBuilder, when, who, how);
-                        }
-                        LOGGER.info("Final HOW = " + how);
+                for (String element : redisList) {
+                    if (link.equals(element)) {
+                        isContains = true;
+                        break;
                     }
                 }
+
+                if (!isContains) {
+                    LOGGER.info("Element type of " + item.getPostType().value() + " does not exist in redis...put it");
+                    REDIS_STORE.rpush(item.getPostType().value(), link);
+                    wallItem.getItemList().add(item);
+                } else {
+                    LOGGER.info("Element type of " + item.getPostType().value() + " already exist in redis...go on");
+                }
+            } else {
+                LOGGER.info("Redis list type of " + item.getPostType().value() + " is empty, put first element");
+                REDIS_STORE.lpush(item.getPostType().value(), link);
+                wallItem.getItemList().add(item);
             }
         }
-
-        LOGGER.info("countTodayFinishedGames = " + countTodayFinishedGames);
-        LOGGER.info("countTodayGames = " + countTodayGames);
-
-        if (countTodayFinishedGames == countTodayGames) {
-            ScheduledKHLInfo.stopCheckingInfoAfterAllGamesFinished = true;
-            LOGGER.info("All today games finished...");
-            LOGGER.info("Waiting summary of all finished games...");
-            return "";
-        }
-
-        if (stringBuilder.toString().isEmpty()) {
-            LOGGER.info("return empty message....");
-            return "";
-        }
-
-        LOGGER.info("INFO_ABOUT_GAME: " + stringBuilder.toString());
-        return stringBuilder.toString();
     }
 
-    //TODO: допилить standings
-    public static String getStandingsInfo(String url) throws IOException {
+    private static void checkRedisStoreOnlyTextType(Item item, WallPostFull postFull, WallItem wallItem) {
+        if (!REDIS_STORE.exists(item.getTitle() + postFull.getId())) {
+            LOGGER.info("Post with only text does not exist in redis...put it");
+            REDIS_STORE.set(item.getTitle() + postFull.getId(), "");
+            wallItem.getItemList().add(item);
+        } else {
+            LOGGER.info("Post with only text already exist in redis...go on");
+        }
+    }
+
+    private static void checkUsualPost(WallPostFull postFull, WallItem wallItem) {
+        if ((postFull.getText() != null && !postFull.getText().isEmpty())
+                && postFull.getAttachments() == null) {
+            Item item = new Item();
+            item.setTitle(postFull.getText());
+            item.setPostType(Item.PostType.KHL_ONLY_TEXT);
+            checkRedisStoreOnlyTextType(item, postFull, wallItem);
+        }
+
+        if (postFull.getAttachments() != null && !postFull.getAttachments().isEmpty()) {
+            //Post with one attachment
+            if (postFull.getAttachments().size() == 1
+                    && postFull.getAttachments().get(0) != null) {
+                LOGGER.info("Post with one attachment...");
+                Item item = new Item();
+                item.setTitle(postFull.getText() != null && !postFull.getText().isEmpty() ? postFull.getText() : "");
+                Utils.checkAttachmentTypeAndMapping(item, postFull.getAttachments().get(0));
+                checkRedisStore(item, wallItem);
+            }
+            //Post with a few attachments
+            else {
+                mapPostWithAFewAttachments(postFull, wallItem);
+            }
+        }
+    }
+
+    private static void mapPostWithAFewAttachments(WallPost post, WallItem wallItem) {
+        boolean emptyTitle = true;
+        for (WallpostAttachment attachment : post.getAttachments()) {
+            Item item = new Item();
+            if (emptyTitle) {
+                item.setTitle(post.getText() != null && !post.getText().isEmpty() ? post.getText() : "");
+                emptyTitle = false;
+            }
+            Utils.checkAttachmentTypeAndMapping(item, attachment);
+            checkRedisStore(item, wallItem);
+        }
+    }
+
+    private static void checkRepost(WallPostFull postFull, WallItem wallItem) {
+        for (WallPost repost : postFull.getCopyHistory()) {
+            if ((repost.getText() != null && !repost.getText().isEmpty())
+                    && repost.getAttachments() == null) {
+                Item item = new Item();
+                item.setTitle(postFull.getText().concat("\n").concat(repost.getText()));
+                item.setPostType(Item.PostType.KHL_ONLY_TEXT);
+                checkRedisStoreOnlyTextType(item, postFull, wallItem);
+            }
+            if (repost.getAttachments() != null && !repost.getAttachments().isEmpty()) {
+                //Post with one attachment
+                if (repost.getAttachments().size() == 1
+                        && repost.getAttachments().get(0) != null) {
+                    LOGGER.info("Post with one attachment...");
+                    Item item = new Item();
+                    item.setTitle(postFull.getText() != null && !postFull.getText().isEmpty() ? postFull.getText() : "".concat("\n").concat(repost.getText()));
+                    Utils.checkAttachmentTypeAndMapping(item, repost.getAttachments().get(0));
+                    checkRedisStore(item, wallItem);
+                }
+                //Post with a few attachments
+                else {
+                    mapPostWithAFewAttachments(repost, wallItem);
+                }
+            }
+        }
+    }
+
+    public static MessageStructure getKHLNews(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
-            return "";
+            return null;
         }
+
+        MessageStructure messageStructure = new MessageStructure();
+        messageStructure.setWallItems(new ArrayList<WallItem>());
+        WallItem wallItem = new WallItem();
+        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
-
-        Elements elements = doc.getElementsByAttributeValue("id", "tab-standings-conference");
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String conferenceOfWest;
-        String conferenceOfEast;
-        String position = "0";
-        String club;
-        String points;
-
-        for (Element elem : elements.select("div").attr("class", "b-data_row")) {
-//            LOGGER.info("H4 = " + elem.select("h4").first().text());
-        }
-
-        for (Element elem1 : elements.select("div").attr("class", "b-data_row").select("div").attr("class", "k-data_table").select("table").select("tbody").select("tr")) {
-
-            if (elem1.select("td").first().text() != null && !elem1.select("td").first().text().isEmpty()) {
-                position = elem1.select("td").first().text();
-            }
-            stringBuilder.append(position).append(". ");
-
-            club = elem1.select("span").text();
-            stringBuilder.append(club).append(" ");
-
-            points = elem1.select("td").select("b").text();
-            stringBuilder.append("-").append(points).append("\n");
-
-//            if (elem1.select("span").is())
-
-        }
-
-
-        return stringBuilder.toString();
-    }
-
-    public static String getKHLNews(String url, LocalTime currentTime) throws IOException {
-
-        if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
-            return "";
-        }
-
-        Document doc = Jsoup.connect(url).get();
-
         Elements elements = doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements();
-
-        StringBuilder stringBuilder = new StringBuilder();
         String newsUrl;
 
         for (Element elem : elements) {
@@ -187,112 +205,94 @@ public class Connection {
             if (elem.attr("class").equals("b-middle_block")) {
 
                 newsUrl = elem.select("a").first().attr("abs:href");
-                if (newsUrl != null && !newsUrl.isEmpty()) {
-                    if (!REDIS_STORE.exists(newsUrl)) {
-                        LOGGER.info("Put the new article " + newsUrl + " into map: " + newsUrl);
-                        REDIS_STORE.set(newsUrl, "");
-                        stringBuilder.append(newsUrl).append("\n");
-                    } else {
-                        LOGGER.info("Article " + newsUrl + " is already exist! Looking for next article...");
-                    }
-                }
-
+                Item item = new Item();
+                item.setLink(newsUrl);
+                item.setPostType(Item.PostType.KHL_LINK);
+                checkRedisStore(item, wallItem);
+                messageStructure.getWallItems().add(wallItem);
+                return messageStructure;
             }
         }
-
-        if (stringBuilder.toString().isEmpty()) {
-            return "";
-        }
-
-        return stringBuilder.toString();
+        return null;
     }
 
-    public static String getPhotoToday(String url) throws IOException {
+    public static MessageStructure getPhotoToday(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
-            return "";
+            return null;
         }
 
+        MessageStructure messageStructure = new MessageStructure();
+        messageStructure.setWallItems(new ArrayList<WallItem>());
+        WallItem wallItem = new WallItem();
+        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
-
         Elements elements = doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first().getAllElements();
-
-        StringBuilder photoTodaySb = new StringBuilder();
-
         String photoUrl;
 
         for (Element elem : elements) {
 
-            photoUrl = elem.attr("abs:href");
+            photoUrl = elem.attr("style");
 
             if (photoUrl != null && !photoUrl.isEmpty()) {
-                if (!REDIS_STORE.exists(photoUrl)) {
-                    LOGGER.info("Put the photo " + photoUrl + " into map...");
-                    REDIS_STORE.set(photoUrl, "");
-                    photoTodaySb.append("ФОТО ДНЯ \n").append(photoUrl).append("\n");
-                } else {
-                    LOGGER.info("Photo " + photoUrl + " is already exist! Looking for next photoDay...");
-                }
+
+                String urlJPG = "https://".concat(photoUrl.substring(photoUrl.lastIndexOf("//") + 2, photoUrl.lastIndexOf(")")));
+
+                Item item = new Item();
+                item.setCaption("ФОТО ДНЯ");
+                item.setLink(urlJPG);
+                item.setPostType(Item.PostType.KHL_PHOTO);
+                checkRedisStore(item, wallItem);
+                messageStructure.getWallItems().add(wallItem);
+                return messageStructure;
             }
         }
-
-        if (photoTodaySb.toString().isEmpty()) {
-            return "";
-        }
-
-        return photoTodaySb.toString();
+        return null;
     }
 
 
-    public static StringBuilder getVideo(String url) throws IOException {
+    public static MessageStructure getVideo(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.info("ResponseCode != 200....");
-            return new StringBuilder();
+            return null;
         }
+
+        MessageStructure messageStructure = new MessageStructure();
+        messageStructure.setWallItems(new ArrayList<WallItem>());
+        WallItem wallItem = new WallItem();
+        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
         Elements elements = doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements();
-
-        StringBuilder videoTodaySb = new StringBuilder();
         String videoUrl;
 
         for (Element elem : elements) {
 
             if (elem.attr("class").equals("b-middle_block")) {
+                Item item = new Item();
                 videoUrl = elem.select("a").first().attr("abs:href");
-                checkVideoUrl(videoUrl, videoTodaySb);
+                item.setLink(videoUrl);
+                item.setPostType(Item.PostType.KHL_VIDEO);
+                checkRedisStore(item, wallItem);
             }
 
             if (elem.attr("class").equals("b-short_block")) {
                 for (Element current : elem.getAllElements().select("div")) {
+                    Item item = new Item();
                     videoUrl = current.select("a").attr("abs:href");
-                    checkVideoUrl(videoUrl, videoTodaySb);
+                    item.setLink(videoUrl);
+                    item.setPostType(Item.PostType.KHL_VIDEO);
+                    checkRedisStore(item, wallItem);
                 }
             }
         }
 
-        if (videoTodaySb.toString().isEmpty()) {
-            return new StringBuilder();
-        }
-
-        return videoTodaySb;
+        messageStructure.getWallItems().add(wallItem);
+        return messageStructure;
     }
-
-    private static void checkVideoUrl(String videoUrl, StringBuilder sb) {
-        if (videoUrl != null && !videoUrl.isEmpty()) {
-            if (!REDIS_STORE.exists(videoUrl)) {
-                LOGGER.info("Put the video " + videoUrl + "into map...");
-                REDIS_STORE.set(videoUrl, "");
-                sb.append(videoUrl).append("\n");
-            } else {
-                LOGGER.info("Video " + videoUrl + " is already exist! Looking for next video...");
-            }
-        }
-    }
-
 
     static String getInfoForHockeyClub(String url) throws IOException {
 
@@ -347,45 +347,6 @@ public class Connection {
         }
         LOGGER.info("INFO_ABOUT_COMMAND" + stringBuilder.toString());
 
-
         return stringBuilder.toString();
-    }
-
-    private static void getInfo(StringBuilder stringBuilder, String when, String who, String how) {
-        stringBuilder.append("Когда: ".concat(when)).append("\n");
-        stringBuilder.append("Versus: ".concat(who)).append("\n");
-        stringBuilder.append("Результат: ".concat(how)).append("\n-------\uD83C\uDFD2\uD83C\uDFC6\uD83D\uDCAA\uD83C\uDFFB-------\n");
-    }
-
-    private static String checkHow(String how) {
-        LOGGER.info("HOW BEFORE checking.... " + how);
-
-        switch (how) {
-            case "0":
-                how = " \u23F8";
-                break;
-            case "1":
-                how = " 1⃣";
-                break;
-            case "2":
-                how = " 2⃣;";
-                break;
-            case "3":
-                how = " 3⃣;";
-                break;
-            case "подготовка":
-                how = "подготовка";
-                break;
-            case "б":
-                how = " \uD83C\uDFD2";
-                break;
-            case "от":
-                how = " \uD83D\uDD50";
-                break;
-            default:
-                how = "";
-        }
-        LOGGER.info("HOW AFTER checking.... " + how);
-        return how;
     }
 }

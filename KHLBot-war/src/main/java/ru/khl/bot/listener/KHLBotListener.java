@@ -8,10 +8,10 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.BotSession;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
-import ru.khl.bot.schedulers.ScheduledKHLInfo;
 import ru.khl.bot.schedulers.ScheduledKHLNews;
 import ru.khl.bot.schedulers.ScheduledKHLPhoto;
 import ru.khl.bot.schedulers.ScheduledKHLVideo;
+import ru.khl.bot.schedulers.ScheduledVKInfo;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -47,8 +47,8 @@ public class KHLBotListener implements ServletContextListener {
 
             time = new Timer();
 
-            ScheduledKHLInfo scheduledKHLInfo = new ScheduledKHLInfo();
-            time.schedule(scheduledKHLInfo, 0, 5000); //5 sec
+            ScheduledVKInfo scheduledKHLInfo = new ScheduledVKInfo();
+            time.schedule(scheduledKHLInfo, 0, 300_000); //5 min
 
             ScheduledKHLNews scheduledKHLNews = new ScheduledKHLNews();
             time.schedule(scheduledKHLNews, 0, 300_000); //5 min
