@@ -44,6 +44,7 @@ public class ScheduledVKInfo extends TimerTask {
                         List<InputMediaPhoto> photoList = new ArrayList<>();
                         List<InputMedia> inputMediaList = new ArrayList<>();
                         String titleWithPhoto = "";
+                        boolean captionFlag = false;
 
                         for (Item item : wallItem.getItemList()) {
                             if (item.getPostType() != null && item.getPostType().value() != null && !item.getPostType().value().isEmpty()) {
@@ -70,6 +71,12 @@ public class ScheduledVKInfo extends TimerTask {
                                         URL urlOfPhoto = new URL(item.getLink());
                                         InputStream streamOfPhoto = urlOfPhoto.openStream();
                                         inputMediaPhoto.setMedia(streamOfPhoto, "name".concat(String.valueOf(random)));
+                                        if (!captionFlag) {
+                                            if (titleWithPhoto.length() <= 200) {
+                                                inputMediaPhoto.setCaption(titleWithPhoto);
+                                                captionFlag = true;
+                                            }
+                                        }
                                         photoList.add(inputMediaPhoto);
                                         break;
                                     default:
@@ -83,8 +90,10 @@ public class ScheduledVKInfo extends TimerTask {
                         }
 
                         if (!photoList.isEmpty()) {
-                            if (titleWithPhoto != null && !titleWithPhoto.isEmpty()) {
-                                new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
+                            if (!captionFlag) {
+                                if (titleWithPhoto != null && !titleWithPhoto.isEmpty()) {
+                                    new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
+                                }
                             }
                             LOGGER.info("SEND GROUP KHL_PHOTO...");
                             inputMediaList.addAll(photoList);
