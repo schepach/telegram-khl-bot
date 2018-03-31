@@ -3,6 +3,7 @@
 ## About bot 
 
 Telegram bot for [KHL](http://khl.ru).
+Telegram channel: [@KHL_Info](https://t.me/KHL_Info)
 
 1. It shows schedule games for hockey KHL clubs
  
