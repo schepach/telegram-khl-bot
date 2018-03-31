@@ -99,6 +99,7 @@ public class Connection {
                     wallItem.getItemList().add(item);
                 } else {
                     LOGGER.info("Element type of " + item.getPostType().value() + " already exist in redis...go on");
+                    wallItem.getItemList().remove(item);
                 }
             } else {
                 LOGGER.info("Redis list type of " + item.getPostType().value() + " is empty, put first element");
