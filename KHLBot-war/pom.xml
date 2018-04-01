@@ -58,6 +58,13 @@
             <artifactId>sdk</artifactId>
             <version>0.5.9</version>
         </dependency>
+        <dependency>
+            <groupId>ru.welp.vk.lib</groupId>
+            <artifactId>common-vk-lib</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+        </dependency>
+
     </dependencies>
 
     <build>

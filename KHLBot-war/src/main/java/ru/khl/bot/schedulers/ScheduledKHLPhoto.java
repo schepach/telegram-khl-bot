@@ -1,14 +1,14 @@
 package ru.khl.bot.schedulers;
 
+import common.vk.model.Item;
+import common.vk.model.MessageStructure;
+import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
-import ru.khl.bot.model.Item;
-import ru.khl.bot.model.MessageStructure;
-import ru.khl.bot.model.WallItem;
 import ru.khl.bot.utils.Connection;
 
 import java.io.IOException;

@@ -1,28 +1,17 @@
 package ru.khl.bot.utils;
 
-import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.ServiceActor;
-import com.vk.api.sdk.exceptions.ApiException;
-import com.vk.api.sdk.exceptions.ClientException;
-import com.vk.api.sdk.httpclient.HttpTransportClient;
-import com.vk.api.sdk.objects.wall.WallPost;
-import com.vk.api.sdk.objects.wall.WallPostFull;
-import com.vk.api.sdk.objects.wall.WallpostAttachment;
-import com.vk.api.sdk.objects.wall.responses.GetResponse;
-import com.vk.api.sdk.queries.wall.WallGetFilter;
+import common.vk.connection.VKConnection;
+import common.vk.model.Item;
+import common.vk.model.MessageStructure;
+import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import redis.clients.jedis.Jedis;
-import ru.khl.bot.model.Item;
-import ru.khl.bot.model.MessageStructure;
-import ru.khl.bot.model.WallItem;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by alexey on 01.11.16.
@@ -30,160 +19,7 @@ import java.util.List;
 
 public class Connection {
 
-    private static final int OWNER_ID = -1;
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
-    private static final Jedis REDIS_STORE = new Jedis("localhost", 6379);
-
-    public static MessageStructure getInfo() {
-
-
-        VkApiClient vk = new VkApiClient(new HttpTransportClient());
-
-        MessageStructure messageStructure = new MessageStructure();
-        messageStructure.setWallItems(new ArrayList<WallItem>());
-        try {
-
-            ServiceActor actor = new ServiceActor(0, "");
-
-            GetResponse getResponse = vk.wall().get(actor)
-                    .ownerId(OWNER_ID)
-                    .count(20)
-//                    .offset(15) //смещение
-                    .filter(WallGetFilter.ALL)
-                    .execute();
-
-//            LOGGER.info("RESPONSE = " + getResponse);
-
-            for (WallPostFull postFull : getResponse.getItems()) {
-
-                WallItem wallItem = new WallItem();
-                wallItem.setItemList(new ArrayList<Item>());
-
-                if (postFull.getCopyHistory() != null) {
-                    checkRepost(postFull, wallItem);
-                } else {
-                    checkUsualPost(postFull, wallItem);
-                }
-                messageStructure.getWallItems().add(wallItem);
-            }
-            return messageStructure;
-        } catch (ApiException | ClientException ex) {
-            LOGGER.info("EXCEPTION: ", ex);
-        }
-        return null;
-    }
-
-    private static void checkRedisStore(Item item, WallItem wallItem) {
-        if (item.getLink() != null && !item.getLink().isEmpty()) {
-            String link = item.getLink();
-
-            if (item.getPostType() == Item.PostType.KHL_PHOTO) {
-                link = link.substring(link.lastIndexOf("/") + 1, link.length());
-            }
-
-            List<String> redisList = REDIS_STORE.lrange(item.getPostType().value(), 0, REDIS_STORE.dbSize());
-            boolean isContains = false;
-
-            if (redisList != null && !redisList.isEmpty()) {
-
-                for (String element : redisList) {
-                    if (link.equals(element)) {
-                        isContains = true;
-                        break;
-                    }
-                }
-
-                if (!isContains) {
-                    LOGGER.info("Element type of " + item.getPostType().value() + " does not exist in redis...put it");
-                    REDIS_STORE.rpush(item.getPostType().value(), link);
-                    wallItem.getItemList().add(item);
-                } else {
-                    LOGGER.info("Element type of " + item.getPostType().value() + " already exist in redis...go on");
-                    wallItem.getItemList().remove(item);
-                }
-            } else {
-                LOGGER.info("Redis list type of " + item.getPostType().value() + " is empty, put first element");
-                REDIS_STORE.lpush(item.getPostType().value(), link);
-                wallItem.getItemList().add(item);
-            }
-        }
-    }
-
-    private static void checkRedisStoreOnlyTextType(Item item, WallPostFull postFull, WallItem wallItem) {
-        if (!REDIS_STORE.exists(item.getTitle() + postFull.getId())) {
-            LOGGER.info("Post with only text does not exist in redis...put it");
-            REDIS_STORE.set(item.getTitle() + postFull.getId(), "");
-            wallItem.getItemList().add(item);
-        } else {
-            LOGGER.info("Post with only text already exist in redis...go on");
-        }
-    }
-
-    private static void checkUsualPost(WallPostFull postFull, WallItem wallItem) {
-        if ((postFull.getText() != null && !postFull.getText().isEmpty())
-                && postFull.getAttachments() == null) {
-            Item item = new Item();
-            item.setTitle(postFull.getText());
-            item.setPostType(Item.PostType.KHL_ONLY_TEXT);
-            checkRedisStoreOnlyTextType(item, postFull, wallItem);
-        }
-
-        if (postFull.getAttachments() != null && !postFull.getAttachments().isEmpty()) {
-            //Post with one attachment
-            if (postFull.getAttachments().size() == 1
-                    && postFull.getAttachments().get(0) != null) {
-                LOGGER.info("Post with one attachment...");
-                Item item = new Item();
-                item.setTitle(postFull.getText() != null && !postFull.getText().isEmpty() ? postFull.getText() : "");
-                Utils.checkAttachmentTypeAndMapping(item, postFull.getAttachments().get(0));
-                checkRedisStore(item, wallItem);
-            }
-            //Post with a few attachments
-            else {
-                mapPostWithAFewAttachments(postFull, wallItem);
-            }
-        }
-    }
-
-    private static void mapPostWithAFewAttachments(WallPost post, WallItem wallItem) {
-        boolean emptyTitle = true;
-        for (WallpostAttachment attachment : post.getAttachments()) {
-            Item item = new Item();
-            if (emptyTitle) {
-                item.setTitle(post.getText() != null && !post.getText().isEmpty() ? post.getText() : "");
-                emptyTitle = false;
-            }
-            Utils.checkAttachmentTypeAndMapping(item, attachment);
-            checkRedisStore(item, wallItem);
-        }
-    }
-
-    private static void checkRepost(WallPostFull postFull, WallItem wallItem) {
-        for (WallPost repost : postFull.getCopyHistory()) {
-            if ((repost.getText() != null && !repost.getText().isEmpty())
-                    && repost.getAttachments() == null) {
-                Item item = new Item();
-                item.setTitle(postFull.getText().concat("\n").concat(repost.getText()));
-                item.setPostType(Item.PostType.KHL_ONLY_TEXT);
-                checkRedisStoreOnlyTextType(item, postFull, wallItem);
-            }
-            if (repost.getAttachments() != null && !repost.getAttachments().isEmpty()) {
-                //Post with one attachment
-                if (repost.getAttachments().size() == 1
-                        && repost.getAttachments().get(0) != null) {
-                    LOGGER.info("Post with one attachment...");
-                    Item item = new Item();
-                    item.setTitle(postFull.getText() != null && !postFull.getText().isEmpty() ? postFull.getText() : "".concat("\n").concat(repost.getText()));
-                    Utils.checkAttachmentTypeAndMapping(item, repost.getAttachments().get(0));
-                    checkRedisStore(item, wallItem);
-                }
-                //Post with a few attachments
-                else {
-                    mapPostWithAFewAttachments(repost, wallItem);
-                }
-            }
-        }
-    }
 
     public static MessageStructure getKHLNews(String url) throws IOException {
 
@@ -208,8 +44,8 @@ public class Connection {
                 newsUrl = elem.select("a").first().attr("abs:href");
                 Item item = new Item();
                 item.setLink(newsUrl);
-                item.setPostType(Item.PostType.KHL_LINK);
-                checkRedisStore(item, wallItem);
+                item.setPostType(Item.PostType.LINK);
+                VKConnection.checkRedisStore(item, wallItem, "KHL");
                 messageStructure.getWallItems().add(wallItem);
                 return messageStructure;
             }
@@ -244,8 +80,8 @@ public class Connection {
                 Item item = new Item();
                 item.setCaption("ФОТО ДНЯ");
                 item.setLink(urlJPG);
-                item.setPostType(Item.PostType.KHL_PHOTO);
-                checkRedisStore(item, wallItem);
+                item.setPostType(Item.PostType.PHOTO);
+                VKConnection.checkRedisStore(item, wallItem, "KHL");
                 messageStructure.getWallItems().add(wallItem);
                 return messageStructure;
             }
@@ -276,8 +112,8 @@ public class Connection {
                 Item item = new Item();
                 videoUrl = elem.select("a").first().attr("abs:href");
                 item.setLink(videoUrl);
-                item.setPostType(Item.PostType.KHL_VIDEO);
-                checkRedisStore(item, wallItem);
+                item.setPostType(Item.PostType.VIDEO);
+                VKConnection.checkRedisStore(item, wallItem, "KHL");
             }
 
             if (elem.attr("class").equals("b-short_block")) {
@@ -285,8 +121,8 @@ public class Connection {
                     Item item = new Item();
                     videoUrl = current.select("a").attr("abs:href");
                     item.setLink(videoUrl);
-                    item.setPostType(Item.PostType.KHL_VIDEO);
-                    checkRedisStore(item, wallItem);
+                    item.setPostType(Item.PostType.VIDEO);
+                    VKConnection.checkRedisStore(item, wallItem, "KHL");
                 }
             }
         }

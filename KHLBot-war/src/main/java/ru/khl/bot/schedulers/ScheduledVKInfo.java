@@ -1,19 +1,22 @@
 package ru.khl.bot.schedulers;
 
+import com.vk.api.sdk.client.actors.ServiceActor;
+import common.vk.connection.UserInfo;
+import common.vk.connection.VKConnection;
+import common.vk.model.Item;
+import common.vk.model.MessageStructure;
+import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.telegram.telegrambots.api.methods.send.SendDocument;
 import org.telegram.telegrambots.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendVideo;
 import org.telegram.telegrambots.api.objects.media.InputMedia;
 import org.telegram.telegrambots.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
-import ru.khl.bot.model.Item;
-import ru.khl.bot.model.MessageStructure;
-import ru.khl.bot.model.WallItem;
-import ru.khl.bot.utils.Connection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +38,17 @@ public class ScheduledVKInfo extends TimerTask {
     public void run() {
 
         try {
-            MessageStructure messageStructure = Connection.getInfo();
+            UserInfo userInfo = new UserInfo();
+            //vk ownerId of public page
+            userInfo.setVkOwnerId(-1);
+            //your vk service actor
+            userInfo.setVkServiceActor(null);
+            //your alias of telegram bot for redis storage (for example: KHL)
+            userInfo.setBotAlias("");
+            //as many posts as you need from vk public page
+            userInfo.setVkPostCount(30);
+
+            MessageStructure messageStructure = VKConnection.getVKWallInfo(userInfo);
 
             if (messageStructure != null && messageStructure.getWallItems() != null) {
 
@@ -49,8 +62,15 @@ public class ScheduledVKInfo extends TimerTask {
                         for (Item item : wallItem.getItemList()) {
                             if (item.getPostType() != null && item.getPostType().value() != null && !item.getPostType().value().isEmpty()) {
                                 switch (item.getPostType()) {
-                                    case KHL_FILE:
-                                        LOGGER.info("type KHL_FILE...");
+                                    case GIF:
+                                        URL URLGIF = new URL(item.getLink());
+                                        InputStream streamOfGIF = URLGIF.openStream();
+                                        new KHLBot().sendVideo(new SendVideo().setChatId(CHAT_ID)
+                                                .setCaption(item.getTitle())
+                                                .setNewVideo("title", streamOfGIF));
+                                        break;
+                                    case FILE:
+                                        LOGGER.info("type FILE...");
                                         LOGGER.info("Caption = " + item.getCaption());
                                         LOGGER.info("Title = " + item.getTitle());
                                         URL urlOfFile = new URL(item.getLink());
@@ -59,10 +79,10 @@ public class ScheduledVKInfo extends TimerTask {
                                                 .setCaption(item.getCaption())
                                                 .setNewDocument(item.getTitle(), streamOfFile));
                                         break;
-                                    case KHL_PHOTO:
+                                    case PHOTO:
                                         double random = Math.random();
-                                        LOGGER.info("type KHL_PHOTO...");
-                                        LOGGER.info("KHL_LINK OF ITEM = " + item.getLink());
+                                        LOGGER.info("type PHOTO...");
+                                        LOGGER.info("LINK OF ITEM = " + item.getLink());
 
                                         if (titleWithPhoto.isEmpty()) {
                                             titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
@@ -95,7 +115,7 @@ public class ScheduledVKInfo extends TimerTask {
                                     new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
                                 }
                             }
-                            LOGGER.info("SEND GROUP KHL_PHOTO...");
+                            LOGGER.info("SEND GROUP PHOTO...");
                             inputMediaList.addAll(photoList);
                             SendMediaGroup sendMediaGroup = new SendMediaGroup();
                             sendMediaGroup.setChatId(CHAT_ID);
