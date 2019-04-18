@@ -1,20 +1,19 @@
 package ru.khl.bot.schedulers;
 
 import com.vk.api.sdk.client.actors.ServiceActor;
-import common.vk.connection.UserInfo;
 import common.vk.connection.VKConnection;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
+import common.vk.model.UserInfo;
 import common.vk.model.WallItem;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.telegram.telegrambots.api.methods.send.SendDocument;
-import org.telegram.telegrambots.api.methods.send.SendMediaGroup;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.methods.send.SendVideo;
-import org.telegram.telegrambots.api.objects.media.InputMedia;
-import org.telegram.telegrambots.api.objects.media.InputMediaPhoto;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 
@@ -24,6 +23,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Alexey on 13.12.2016.
@@ -65,9 +66,9 @@ public class ScheduledVKInfo extends TimerTask {
                                     case GIF:
                                         URL URLGIF = new URL(item.getLink());
                                         InputStream streamOfGIF = URLGIF.openStream();
-                                        new KHLBot().sendVideo(new SendVideo().setChatId(CHAT_ID)
+                                        new KHLBot().execute(new SendVideo().setChatId(CHAT_ID)
                                                 .setCaption(item.getTitle())
-                                                .setNewVideo("title", streamOfGIF));
+                                                .setVideo("title", streamOfGIF));
                                         break;
                                     case FILE:
                                         LOGGER.info("type FILE...");
@@ -75,9 +76,9 @@ public class ScheduledVKInfo extends TimerTask {
                                         LOGGER.info("Title = " + item.getTitle());
                                         URL urlOfFile = new URL(item.getLink());
                                         InputStream streamOfFile = urlOfFile.openStream();
-                                        new KHLBot().sendDocument(new SendDocument().setChatId(CHAT_ID)
+                                        new KHLBot().execute(new SendDocument().setChatId(CHAT_ID)
                                                 .setCaption(item.getCaption())
-                                                .setNewDocument(item.getTitle(), streamOfFile));
+                                                .setDocument(item.getTitle(), streamOfFile));
                                         break;
                                     case PHOTO:
                                         double random = Math.random();
@@ -103,7 +104,7 @@ public class ScheduledVKInfo extends TimerTask {
                                         LOGGER.info("OTHER_POST TYPE...");
                                         String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
                                         String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
-                                        new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(title.concat("\n").concat(link).concat("\n")));
+                                        new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(title.concat("\n").concat(link).concat("\n")));
                                         break;
                                 }
                             }
@@ -111,25 +112,23 @@ public class ScheduledVKInfo extends TimerTask {
 
                         if (!photoList.isEmpty()) {
                             if (!captionFlag) {
-                                if (titleWithPhoto != null && !titleWithPhoto.isEmpty()) {
-                                    new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
-                                }
+                                new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
                             }
                             LOGGER.info("SEND GROUP PHOTO...");
                             inputMediaList.addAll(photoList);
                             SendMediaGroup sendMediaGroup = new SendMediaGroup();
                             sendMediaGroup.setChatId(CHAT_ID);
                             sendMediaGroup.setMedia(inputMediaList);
-                            new KHLBot().sendMediaGroup(sendMediaGroup);
+                            new KHLBot().execute(sendMediaGroup);
                         }
                     }
                 }
             }
 
         } catch (TelegramApiRequestException | JSONException | IOException e) {
-            LOGGER.info(Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e));
+            LOGGER.log(Level.INFO, Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e), e);
         } catch (Exception ex) {
-            LOGGER.info("EXCEPTION: ", ex);
+            LOGGER.log(Level.INFO, "EXCEPTION", ex);
         }
     }
 }

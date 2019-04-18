@@ -5,8 +5,8 @@ import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
@@ -33,7 +33,7 @@ public class ScheduledKHLNews extends TimerTask {
                         for (Item item : wallItem.getItemList()) {
                             if (!item.getLink().isEmpty()) {
                                 LOGGER.info("NEWS_KHL URL = " + item.getLink());
-                                new KHLBot().sendMessage(new SendMessage().setChatId(CHAT_ID).setText(item.getLink()));
+                                new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(item.getLink()));
                             }
                         }
                     }

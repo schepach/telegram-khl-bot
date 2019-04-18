@@ -5,8 +5,8 @@ import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.telegram.telegrambots.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
@@ -38,7 +38,7 @@ public class ScheduledKHLPhoto extends TimerTask {
                                 LOGGER.info("PHOTO_KHL URL = " + item.getLink());
                                 URL urlOfPhoto = new URL(item.getLink());
                                 InputStream streamOfPhoto = urlOfPhoto.openStream();
-                                new KHLBot().sendPhoto(new SendPhoto().setCaption(item.getCaption()).setChatId(CHAT_ID).setNewPhoto("khlPhotoName", streamOfPhoto));
+                                new KHLBot().execute(new SendPhoto().setCaption(item.getCaption()).setChatId(CHAT_ID).setPhoto("khlPhotoName", streamOfPhoto));
                             }
                         }
                     }
