@@ -4,14 +4,11 @@ import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
-import java.io.IOException;
 import java.util.TimerTask;
 
 /**
@@ -20,8 +17,8 @@ import java.util.TimerTask;
 
 public class ScheduledKHLVideo extends TimerTask {
 
-    private static final Logger LOGGER = Logger.getLogger(ScheduledKHLVideo.class.getSimpleName());
-    private static final String CHAT_ID = "@KHL_Info";
+    private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final String chatId = "@KHL_Info";
 
     @Override
     public void run() {
@@ -33,17 +30,15 @@ public class ScheduledKHLVideo extends TimerTask {
                     if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
                         for (Item item : wallItem.getItemList()) {
                             if (item.getLink() != null && !item.getLink().isEmpty()) {
-                                LOGGER.info("VIDEO_KHL URL = " + item.getLink());
-                                new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(item.getLink()));
+                                logger.info("VIDEO_KHL URL = " + item.getLink());
+                                new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                             }
                         }
                     }
                 }
             }
-        } catch (TelegramApiException | IOException | JSONException e) {
-            LOGGER.info(Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e));
         } catch (Exception ex) {
-            LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
+            logger.info("ScheduledKHLVideo exception: ", ex);
         }
     }
 }

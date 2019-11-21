@@ -6,18 +6,14 @@ import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.UserInfo;
 import common.vk.model.WallItem;
-import org.json.JSONException;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.constants.Constants;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,8 +28,8 @@ import java.util.logging.Logger;
 
 public class ScheduledVKInfo extends TimerTask {
 
-    private static final Logger LOGGER = Logger.getLogger(ScheduledVKInfo.class.getSimpleName());
-    private static final String CHAT_ID = "@KHL_Info";
+    private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final String chatId = "@KHL_Info";
 
     @Override
     public void run() {
@@ -66,24 +62,24 @@ public class ScheduledVKInfo extends TimerTask {
                                     case GIF:
                                         URL URLGIF = new URL(item.getLink());
                                         InputStream streamOfGIF = URLGIF.openStream();
-                                        new KHLBot().execute(new SendVideo().setChatId(CHAT_ID)
+                                        new KHLBot().execute(new SendVideo().setChatId(chatId)
                                                 .setCaption(item.getTitle())
                                                 .setVideo("title", streamOfGIF));
                                         break;
                                     case FILE:
-                                        LOGGER.info("type FILE...");
-                                        LOGGER.info("Caption = " + item.getCaption());
-                                        LOGGER.info("Title = " + item.getTitle());
+                                        logger.info("type FILE...");
+                                        logger.info("Caption = " + item.getCaption());
+                                        logger.info("Title = " + item.getTitle());
                                         URL urlOfFile = new URL(item.getLink());
                                         InputStream streamOfFile = urlOfFile.openStream();
-                                        new KHLBot().execute(new SendDocument().setChatId(CHAT_ID)
+                                        new KHLBot().execute(new SendDocument().setChatId(chatId)
                                                 .setCaption(item.getCaption())
                                                 .setDocument(item.getTitle(), streamOfFile));
                                         break;
                                     case PHOTO:
                                         double random = Math.random();
-                                        LOGGER.info("type PHOTO...");
-                                        LOGGER.info("LINK OF ITEM = " + item.getLink());
+                                        logger.info("type PHOTO...");
+                                        logger.info("LINK OF ITEM = " + item.getLink());
 
                                         if (titleWithPhoto.isEmpty()) {
                                             titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
@@ -101,10 +97,10 @@ public class ScheduledVKInfo extends TimerTask {
                                         photoList.add(inputMediaPhoto);
                                         break;
                                     default:
-                                        LOGGER.info("OTHER_POST TYPE...");
+                                        logger.info("OTHER_POST TYPE...");
                                         String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
                                         String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
-                                        new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(title.concat("\n").concat(link).concat("\n")));
+                                        new KHLBot().execute(new SendMessage().setChatId(chatId).setText(title.concat("\n").concat(link).concat("\n")));
                                         break;
                                 }
                             }
@@ -112,12 +108,12 @@ public class ScheduledVKInfo extends TimerTask {
 
                         if (!photoList.isEmpty()) {
                             if (!captionFlag) {
-                                new KHLBot().execute(new SendMessage().setChatId(CHAT_ID).setText(titleWithPhoto));
+                                new KHLBot().execute(new SendMessage().setChatId(chatId).setText(titleWithPhoto));
                             }
-                            LOGGER.info("SEND GROUP PHOTO...");
+                            logger.info("SEND GROUP PHOTO...");
                             inputMediaList.addAll(photoList);
                             SendMediaGroup sendMediaGroup = new SendMediaGroup();
-                            sendMediaGroup.setChatId(CHAT_ID);
+                            sendMediaGroup.setChatId(chatId);
                             sendMediaGroup.setMedia(inputMediaList);
                             new KHLBot().execute(sendMediaGroup);
                         }
@@ -125,10 +121,8 @@ public class ScheduledVKInfo extends TimerTask {
                 }
             }
 
-        } catch (TelegramApiRequestException | JSONException | IOException e) {
-            LOGGER.log(Level.INFO, Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e), e);
         } catch (Exception ex) {
-            LOGGER.log(Level.INFO, "EXCEPTION", ex);
+            logger.log(Level.INFO, "ScheduledVKInfo exception: ", ex);
         }
     }
 }

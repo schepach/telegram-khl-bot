@@ -1,13 +1,10 @@
 package ru.khl.bot.listener;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.BotSession;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.constants.Constants;
 import ru.khl.bot.schedulers.ScheduledKHLNews;
 import ru.khl.bot.schedulers.ScheduledKHLPhoto;
 import ru.khl.bot.schedulers.ScheduledKHLVideo;
@@ -26,24 +23,24 @@ import java.util.Timer;
 @WebListener
 public class KHLBotListener implements ServletContextListener {
 
-    private static final Logger LOGGER = Logger.getLogger(KHLBotListener.class.getSimpleName());
+    private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
 
     private BotSession botSession;
     private Timer time;
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        LOGGER.info("ContextInitialized: botSession start....");
+        logger.info("ContextInitialized: botSession start....");
         ApiContextInitializer.init();
-        LOGGER.info("Initialization BotsApi....");
+        logger.info("Initialization BotsApi....");
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
         try {
-            LOGGER.info("OK!");
-            LOGGER.info("Register KHLBot....");
+            logger.info("OK!");
+            logger.info("Register KHLBot....");
             botSession = telegramBotsApi.registerBot(new KHLBot());
-            LOGGER.info("Register done.");
-            LOGGER.info("Start KHLBot...");
+            logger.info("Register done.");
+            logger.info("Start KHLBot...");
 
             time = new Timer();
 
@@ -59,21 +56,19 @@ public class KHLBotListener implements ServletContextListener {
             ScheduledKHLVideo scheduledKHLVideo = new ScheduledKHLVideo();
             time.schedule(scheduledKHLVideo, 0, 1_800_000); // 30 min
 
-        } catch (TelegramApiException | JSONException e) {
-            LOGGER.error(Constants.UNEXPECTED_ERROR.concat(e.getMessage() + e));
         } catch (Exception ex) {
-            LOGGER.error("EXCEPTION: " + ex.getMessage() + ex);
+            logger.error("ContextInitialized exception: ", ex);
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         try {
-            LOGGER.info("ContextDestroyed: botSession stop....");
+            logger.info("ContextDestroyed: botSession stop....");
             botSession.stop();
             time.cancel();
         } catch (Exception ex) {
-            LOGGER.error("EXCEPTION: " + ex.getMessage() + ex);
+            logger.error("ContextDestroyed exception: ", ex);
         }
     }
 }

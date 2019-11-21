@@ -5,7 +5,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import ru.khl.bot.constants.Constants;
 
 import java.io.IOException;
@@ -127,10 +126,8 @@ public class BotHelper {
                     return Constants.ERROR_OTHER_INPUT;
             }
 
-        } catch (IOException | JSONException ex) {
-            LOGGER.info(Constants.UNEXPECTED_ERROR.concat(ex.getMessage()) + ex);
         } catch (Exception ex) {
-            LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
+            LOGGER.info("Method checkUserText exception: ", ex);
         }
         return Constants.ERROR_OTHER_INPUT;
     }

@@ -4,14 +4,11 @@ import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.TimerTask;
@@ -22,8 +19,8 @@ import java.util.TimerTask;
 
 public class ScheduledKHLPhoto extends TimerTask {
 
-    private static final Logger LOGGER = Logger.getLogger(ScheduledKHLPhoto.class.getSimpleName());
-    private static final String CHAT_ID = "@KHL_Info";
+    private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final String chatId = "@KHL_Info";
 
     @Override
     public void run() {
@@ -34,20 +31,18 @@ public class ScheduledKHLPhoto extends TimerTask {
                 for (WallItem wallItem : messageStructure.getWallItems()) {
                     if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
                         for (Item item : wallItem.getItemList()) {
-                            if (!item.getLink().isEmpty()) {
-                                LOGGER.info("PHOTO_KHL URL = " + item.getLink());
+                            if (item != null && !item.getLink().isEmpty()) {
+                                logger.info("PHOTO_KHL URL = " + item.getLink());
                                 URL urlOfPhoto = new URL(item.getLink());
                                 InputStream streamOfPhoto = urlOfPhoto.openStream();
-                                new KHLBot().execute(new SendPhoto().setCaption(item.getCaption()).setChatId(CHAT_ID).setPhoto("khlPhotoName", streamOfPhoto));
+                                new KHLBot().execute(new SendPhoto().setCaption(item.getCaption()).setChatId(chatId).setPhoto("khlPhotoName", streamOfPhoto));
                             }
                         }
                     }
                 }
             }
-        } catch (TelegramApiException | IOException | JSONException ex) {
-            LOGGER.info(Constants.UNEXPECTED_ERROR.concat(ex.getMessage() + ex), ex);
         } catch (Exception ex) {
-            LOGGER.info("EXCEPTION: " + ex.getMessage(), ex);
+            logger.info("ScheduledKHLPhoto exception: ", ex);
         }
     }
 }

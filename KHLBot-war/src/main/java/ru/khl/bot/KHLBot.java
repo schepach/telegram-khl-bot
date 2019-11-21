@@ -1,32 +1,30 @@
 package ru.khl.bot;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.BotHelper;
 
 /**
  * Created by alexey on 01.11.16.
  */
+
 public class KHLBot extends TelegramLongPollingBot {
 
-    private static final Logger LOGGER = Logger.getLogger(KHLBot.class.getSimpleName());
+    private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
 
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
 
         if (message != null && message.hasText()) {
 
-            LOGGER.info("FirstName: " + message.getFrom().getFirstName());
-            LOGGER.info("LastName: " + message.getFrom().getLastName());
-            LOGGER.info("UserName: " + message.getFrom().getUserName());
-            LOGGER.info("UserId: " + message.getFrom().getId());
-            LOGGER.info("InputCommand: " + message.getText());
+            logger.info("FirstName: " + message.getFrom().getFirstName());
+            logger.info("LastName: " + message.getFrom().getLastName());
+            logger.info("UserName: " + message.getFrom().getUserName());
+            logger.info("UserId: " + message.getFrom().getId());
+            logger.info("InputCommand: " + message.getText());
 
             sendMsg(message, BotHelper.checkUserText(message.getText().toUpperCase()));
         }
@@ -49,10 +47,8 @@ public class KHLBot extends TelegramLongPollingBot {
             sendMessage.setReplyToMessageId(message.getMessageId());
             try {
                 execute(sendMessage);
-            } catch (TelegramApiException | JSONException ex) {
-                LOGGER.info(Constants.UNEXPECTED_ERROR.concat(ex.getMessage() + ex));
             } catch (Exception ex) {
-                LOGGER.info("EXCEPTION: " + ex.getMessage() + ex);
+                logger.info("Method sendMsg exception: ", ex);
             }
         }
     }

@@ -24,22 +24,20 @@ public class Constants {
     public static final String SEVERSTAL = "/SEVERSTAL";
     public static final String DINAMO_RIGA = "/DINAMO_RIGA";
 
-
-    public static final String URL_SKA = "http://www.khl.ru/clubs/ska/";
-    public static final String URL_CSKA = "http://www.khl.ru/clubs/cska/";
-    public static final String URL_TORPEDO = "http://www.khl.ru/clubs/torpedo/";
-    public static final String URL_LOKOMOTIV = "http://www.khl.ru/clubs/lokomotiv/";
-    public static final String URL_DINAMO_MSK = "http://www.khl.ru/clubs/dynamo_msk/";
-    public static final String URL_DINAMO_MINSK = "http://www.khl.ru/clubs/dinamo_mn/";
-    public static final String URL_JOKERIT = "http://www.khl.ru/clubs/jokerit/";
-    public static final String URL_VITYAZ = "http://www.khl.ru/clubs/vityaz/";
-    public static final String URL_SOCHI = "http://www.khl.ru/clubs/hc_sochi/";
-    public static final String URL_SPARTAK = "http://www.khl.ru/clubs/spartak/";
-    public static final String URL_MEDVESCAK = "http://www.khl.ru/clubs/medvescak/";
-    public static final String URL_SLOVAN = "http://www.khl.ru/clubs/slovan/";
-    public static final String URL_SEVERSTAL = "http://www.khl.ru/clubs/severstal/";
-    public static final String URL_DINAMO_RIGA = "http://www.khl.ru/clubs/dinamo_r/";
-
+    public static final String URL_SKA = "https://www.khl.ru/clubs/ska/";
+    public static final String URL_CSKA = "https://www.khl.ru/clubs/cska/";
+    public static final String URL_TORPEDO = "https://www.khl.ru/clubs/torpedo/";
+    public static final String URL_LOKOMOTIV = "https://www.khl.ru/clubs/lokomotiv/";
+    public static final String URL_DINAMO_MSK = "https://www.khl.ru/clubs/dynamo_msk/";
+    public static final String URL_DINAMO_MINSK = "https://www.khl.ru/clubs/dinamo_mn/";
+    public static final String URL_JOKERIT = "https://www.khl.ru/clubs/jokerit/";
+    public static final String URL_VITYAZ = "https://www.khl.ru/clubs/vityaz/";
+    public static final String URL_SOCHI = "https://www.khl.ru/clubs/hc_sochi/";
+    public static final String URL_SPARTAK = "https://www.khl.ru/clubs/spartak/";
+    public static final String URL_MEDVESCAK = "https://www.khl.ru/clubs/medvescak/";
+    public static final String URL_SLOVAN = "https://www.khl.ru/clubs/slovan/";
+    public static final String URL_SEVERSTAL = "https://www.khl.ru/clubs/severstal/";
+    public static final String URL_DINAMO_RIGA = "https://www.khl.ru/clubs/dinamo_r/";
 
     //EAST Conference
     public static final String METALLURG_MAGNITOGORSK = "/METALLURG_MAGNITOGORSK";
@@ -58,24 +56,24 @@ public class Constants {
     public static final String UGRA = "/UGRA";
     public static final String METALLURG_NOVOKUZNETSK = "/METALLURG_NOVOKUZNETSK";
 
-    public static final String URL_METALLURG_MAGNITOGORSK = "http://www.khl.ru/clubs/metallurg_mg/";
-    public static final String URL_AVANGARD = "http://www.khl.ru/clubs/avangard/";
-    public static final String URL_AK_BARS = "http://www.khl.ru/clubs/ak_bars/";
-    public static final String URL_SALAVAT_YULAEV = "http://www.khl.ru/clubs/salavat_yulaev/";
-    public static final String URL_TRAKTOR = "http://www.khl.ru/clubs/traktor/";
-    public static final String URL_ADMIRAL = "http://www.khl.ru/clubs/admiral/";
-    public static final String URL_KUNLUN_RED_STAR = "http://www.khl.ru/clubs/kunlun/";
-    public static final String URL_NEFTEKHIMIK = "http://www.khl.ru/clubs/neftekhimik/";
-    public static final String URL_SIBIR = "http://www.khl.ru/clubs/sibir/";
-    public static final String URL_BARYS = "http://www.khl.ru/clubs/barys/";
-    public static final String URL_AVTOMOBILIST = "http://www.khl.ru/clubs/avtomobilist/";
-    public static final String URL_LADA = "http://www.khl.ru/clubs/lada/";
-    public static final String URL_AMUR = "http://www.khl.ru/clubs/amur/";
-    public static final String URL_UGRA = "http://www.khl.ru/clubs/ugra/";
-    public static final String URL_METALLURG_NOVOKUZNETSK = "http://www.khl.ru/clubs/metallurg_nk/";
+    public static final String URL_METALLURG_MAGNITOGORSK = "https://www.khl.ru/clubs/metallurg_mg/";
+    public static final String URL_AVANGARD = "https://www.khl.ru/clubs/avangard/";
+    public static final String URL_AK_BARS = "https://www.khl.ru/clubs/ak_bars/";
+    public static final String URL_SALAVAT_YULAEV = "https://www.khl.ru/clubs/salavat_yulaev/";
+    public static final String URL_TRAKTOR = "https://www.khl.ru/clubs/traktor/";
+    public static final String URL_ADMIRAL = "https://www.khl.ru/clubs/admiral/";
+    public static final String URL_KUNLUN_RED_STAR = "https://www.khl.ru/clubs/kunlun/";
+    public static final String URL_NEFTEKHIMIK = "https://www.khl.ru/clubs/neftekhimik/";
+    public static final String URL_SIBIR = "https://www.khl.ru/clubs/sibir/";
+    public static final String URL_BARYS = "https://www.khl.ru/clubs/barys/";
+    public static final String URL_AVTOMOBILIST = "https://www.khl.ru/clubs/avtomobilist/";
+    public static final String URL_LADA = "https://www.khl.ru/clubs/lada/";
+    public static final String URL_AMUR = "https://www.khl.ru/clubs/amur/";
+    public static final String URL_UGRA = "https://www.khl.ru/clubs/ugra/";
+    public static final String URL_METALLURG_NOVOKUZNETSK = "https://www.khl.ru/clubs/metallurg_nk/";
 
 
-    public static final String URL_KHL_INFO = "http://www.khl.ru/";
+    public static final String URL_KHL_INFO = "https://www.khl.ru";
 
     public static final String START_TEXT = "Enter your favorite conference. /help - помощь";
     public static final String HELP = "/HELP";
