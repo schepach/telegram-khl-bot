@@ -7,7 +7,7 @@
     <groupId>ru.bot.khl</groupId>
     <artifactId>KHLBot</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.1</version>
+    <version>3.1.2</version>
 
     <modules>
         <module>KHLBot-ear</module>

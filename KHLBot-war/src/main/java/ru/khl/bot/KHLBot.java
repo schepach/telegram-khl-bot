@@ -1,11 +1,13 @@
 package ru.khl.bot;
 
-import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.khl.bot.utils.BotHelper;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by alexey on 01.11.16.
@@ -20,11 +22,11 @@ public class KHLBot extends TelegramLongPollingBot {
 
         if (message != null && message.hasText()) {
 
-            logger.info("FirstName: " + message.getFrom().getFirstName());
-            logger.info("LastName: " + message.getFrom().getLastName());
-            logger.info("UserName: " + message.getFrom().getUserName());
-            logger.info("UserId: " + message.getFrom().getId());
-            logger.info("InputCommand: " + message.getText());
+            this.logger.log(Level.INFO, "FirstName: " + message.getFrom().getFirstName());
+            this.logger.log(Level.INFO, "LastName: " + message.getFrom().getLastName());
+            this.logger.log(Level.INFO, "UserName: " + message.getFrom().getUserName());
+            this.logger.log(Level.INFO, "UserId: " + message.getFrom().getId());
+            this.logger.log(Level.INFO, "InputCommand: " + message.getText());
 
             sendMsg(message, BotHelper.checkUserText(message.getText().toUpperCase()));
         }
@@ -48,7 +50,7 @@ public class KHLBot extends TelegramLongPollingBot {
             try {
                 execute(sendMessage);
             } catch (Exception ex) {
-                logger.info("Method sendMsg exception: ", ex);
+                this.logger.log(Level.SEVERE, "Method sendMsg exception: ", ex);
             }
         }
     }

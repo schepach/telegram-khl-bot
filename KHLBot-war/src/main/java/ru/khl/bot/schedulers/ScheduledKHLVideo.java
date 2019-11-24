@@ -3,13 +3,14 @@ package ru.khl.bot.schedulers;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
-import org.apache.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Alexey on 13.12.2016.
@@ -30,7 +31,7 @@ public class ScheduledKHLVideo extends TimerTask {
                     if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
                         for (Item item : wallItem.getItemList()) {
                             if (item.getLink() != null && !item.getLink().isEmpty()) {
-                                logger.info("VIDEO_KHL URL = " + item.getLink());
+                                this.logger.log(Level.INFO, "VIDEO_KHL URL = " + item.getLink());
                                 new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                             }
                         }
@@ -38,7 +39,7 @@ public class ScheduledKHLVideo extends TimerTask {
                 }
             }
         } catch (Exception ex) {
-            logger.info("ScheduledKHLVideo exception: ", ex);
+            this.logger.log(Level.SEVERE, "ScheduledKHLVideo exception: ", ex);
         }
     }
 }

@@ -67,9 +67,9 @@ public class ScheduledVKInfo extends TimerTask {
                                                 .setVideo("title", streamOfGIF));
                                         break;
                                     case FILE:
-                                        logger.info("type FILE...");
-                                        logger.info("Caption = " + item.getCaption());
-                                        logger.info("Title = " + item.getTitle());
+                                        this.logger.log(Level.INFO, "type FILE...");
+                                        this.logger.log(Level.INFO, "Caption = " + item.getCaption());
+                                        this.logger.log(Level.INFO, "Title = " + item.getTitle());
                                         URL urlOfFile = new URL(item.getLink());
                                         InputStream streamOfFile = urlOfFile.openStream();
                                         new KHLBot().execute(new SendDocument().setChatId(chatId)
@@ -78,8 +78,8 @@ public class ScheduledVKInfo extends TimerTask {
                                         break;
                                     case PHOTO:
                                         double random = Math.random();
-                                        logger.info("type PHOTO...");
-                                        logger.info("LINK OF ITEM = " + item.getLink());
+                                        this.logger.log(Level.INFO, "type PHOTO...");
+                                        this.logger.log(Level.INFO, "LINK OF ITEM = " + item.getLink());
 
                                         if (titleWithPhoto.isEmpty()) {
                                             titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
@@ -97,7 +97,7 @@ public class ScheduledVKInfo extends TimerTask {
                                         photoList.add(inputMediaPhoto);
                                         break;
                                     default:
-                                        logger.info("OTHER_POST TYPE...");
+                                        this.logger.log(Level.INFO, "OTHER_POST TYPE...");
                                         String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
                                         String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
                                         new KHLBot().execute(new SendMessage().setChatId(chatId).setText(title.concat("\n").concat(link).concat("\n")));
@@ -110,7 +110,7 @@ public class ScheduledVKInfo extends TimerTask {
                             if (!captionFlag) {
                                 new KHLBot().execute(new SendMessage().setChatId(chatId).setText(titleWithPhoto));
                             }
-                            logger.info("SEND GROUP PHOTO...");
+                            this.logger.log(Level.INFO, "SEND GROUP PHOTO...");
                             inputMediaList.addAll(photoList);
                             SendMediaGroup sendMediaGroup = new SendMediaGroup();
                             sendMediaGroup.setChatId(chatId);
@@ -122,7 +122,7 @@ public class ScheduledVKInfo extends TimerTask {
             }
 
         } catch (Exception ex) {
-            logger.log(Level.INFO, "ScheduledVKInfo exception: ", ex);
+            this.logger.log(Level.SEVERE, "ScheduledVKInfo exception: ", ex);
         }
     }
 }

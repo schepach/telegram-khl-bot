@@ -3,13 +3,14 @@ package ru.khl.bot.schedulers;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
-import org.apache.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Alexey on 13.12.2016.
@@ -29,10 +30,10 @@ public class ScheduledKHLNews extends TimerTask {
                     if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
                         for (Item item : wallItem.getItemList()) {
                             if (item.getLink() != null && !item.getLink().isEmpty()) {
-                                logger.info("NEWS_KHL URL = " + item.getLink());
+                                this.logger.log(Level.INFO, "NEWS_KHL URL = " + item.getLink());
                                 new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                             } else {
-                                logger.info("NEWS_KHL URL is null or is empty");
+                                this.logger.log(Level.INFO, "NEWS_KHL URL is null or is empty");
                             }
                         }
                     }
@@ -40,7 +41,7 @@ public class ScheduledKHLNews extends TimerTask {
             }
 
         } catch (Exception ex) {
-            logger.info("ScheduledKHLNews exception: ", ex);
+            this.logger.log(Level.SEVERE, "ScheduledKHLNews exception: ", ex);
         }
     }
 }

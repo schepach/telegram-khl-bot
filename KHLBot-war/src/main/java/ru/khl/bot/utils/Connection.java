@@ -4,7 +4,6 @@ import common.vk.connection.VKConnection;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,6 +11,8 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by alexey on 01.11.16.
@@ -24,7 +25,7 @@ public class Connection {
     public static MessageStructure getKHLNews(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
+            LOGGER.log(Level.INFO, "ResponseCode != 200....");
             return null;
         }
 
@@ -56,7 +57,7 @@ public class Connection {
     public static MessageStructure getPhotoToday(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
+            LOGGER.log(Level.INFO, "ResponseCode != 200....");
             return null;
         }
 
@@ -93,7 +94,7 @@ public class Connection {
     public static MessageStructure getVideo(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
+            LOGGER.log(Level.INFO, "ResponseCode != 200....");
             return null;
         }
 
@@ -134,7 +135,7 @@ public class Connection {
     static String getInfoForHockeyClub(String url) throws IOException {
 
         if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.info("ResponseCode != 200....");
+            LOGGER.log(Level.INFO, "ResponseCode != 200....");
             return "";
         }
         Document doc = Jsoup.connect(url).get();
@@ -182,7 +183,7 @@ public class Connection {
             }
 
         }
-        LOGGER.info("INFO_ABOUT_COMMAND" + stringBuilder.toString());
+        LOGGER.log(Level.INFO, "INFO_ABOUT_COMMAND" + stringBuilder.toString());
 
         return stringBuilder.toString();
     }

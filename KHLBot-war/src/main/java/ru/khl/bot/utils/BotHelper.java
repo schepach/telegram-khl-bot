@@ -4,10 +4,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.log4j.Logger;
 import ru.khl.bot.constants.Constants;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Alexey on 09.01.2017.
@@ -127,17 +128,17 @@ public class BotHelper {
             }
 
         } catch (Exception ex) {
-            LOGGER.info("Method checkUserText exception: ", ex);
+            LOGGER.log(Level.SEVERE, "Method checkUserText exception: ", ex);
         }
         return Constants.ERROR_OTHER_INPUT;
     }
 
     static int getResponseCode(String url) throws IOException {
-        LOGGER.info("ConnectTo: " + url);
+        LOGGER.log(Level.INFO, "ConnectTo: " + url);
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet request = new HttpGet(url);
         HttpResponse response = client.execute(request);
-        LOGGER.info("Response Code: " + response.getStatusLine().getStatusCode());
+        LOGGER.log(Level.INFO, "Response Code: " + response.getStatusLine().getStatusCode());
 
         return response.getStatusLine().getStatusCode();
     }

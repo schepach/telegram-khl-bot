@@ -1,6 +1,5 @@
 package ru.khl.bot.listener;
 
-import org.apache.log4j.Logger;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.generics.BotSession;
@@ -14,6 +13,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -30,17 +31,17 @@ public class KHLBotListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        logger.info("ContextInitialized: botSession start....");
+        this.logger.log(Level.SEVERE, "ContextInitialized: botSession start....");
         ApiContextInitializer.init();
-        logger.info("Initialization BotsApi....");
+        this.logger.log(Level.SEVERE, "Initialization BotsApi....");
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
         try {
-            logger.info("OK!");
-            logger.info("Register KHLBot....");
+            this.logger.log(Level.SEVERE, "OK!");
+            this.logger.log(Level.SEVERE, "Register KHLBot....");
             botSession = telegramBotsApi.registerBot(new KHLBot());
-            logger.info("Register done.");
-            logger.info("Start KHLBot...");
+            this.logger.log(Level.SEVERE, "Register done.");
+            this.logger.log(Level.SEVERE, "Start KHLBot...");
 
             time = new Timer();
 
@@ -57,18 +58,18 @@ public class KHLBotListener implements ServletContextListener {
             time.schedule(scheduledKHLVideo, 0, 1_800_000); // 30 min
 
         } catch (Exception ex) {
-            logger.error("ContextInitialized exception: ", ex);
+            this.logger.log(Level.SEVERE, "ContextInitialized exception: ", ex);
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         try {
-            logger.info("ContextDestroyed: botSession stop....");
+            this.logger.log(Level.SEVERE, "ContextDestroyed: botSession stop....");
             botSession.stop();
             time.cancel();
         } catch (Exception ex) {
-            logger.error("ContextDestroyed exception: ", ex);
+            this.logger.log(Level.SEVERE, "ContextDestroyed exception: ", ex);
         }
     }
 }
