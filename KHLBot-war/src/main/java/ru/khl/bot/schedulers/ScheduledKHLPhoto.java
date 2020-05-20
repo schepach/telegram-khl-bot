@@ -28,20 +28,26 @@ public class ScheduledKHLPhoto extends TimerTask {
         try {
             MessageStructure messageStructure = Connection.getPhotoToday(Constants.URL_KHL_INFO);
 
-            if (messageStructure != null && messageStructure.getWallItems() != null) {
-                for (WallItem wallItem : messageStructure.getWallItems()) {
-                    if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
-                        for (Item item : wallItem.getItemList()) {
-                            if (item != null && !item.getLink().isEmpty()) {
-                                this.logger.log(Level.INFO, "PHOTO_KHL URL = " + item.getLink());
-                                URL urlOfPhoto = new URL(item.getLink());
-                                InputStream streamOfPhoto = urlOfPhoto.openStream();
-                                new KHLBot().execute(new SendPhoto().setCaption(item.getCaption()).setChatId(chatId).setPhoto("khlPhotoName", streamOfPhoto));
-                            }
-                        }
+            if (messageStructure == null || messageStructure.getWallItems() == null)
+                return;
+
+            for (WallItem wallItem : messageStructure.getWallItems()) {
+
+                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                    continue;
+
+                for (Item item : wallItem.getItemList()) {
+                    if (item == null || item.getLink() == null || item.getLink().isEmpty()) {
+                        this.logger.log(Level.SEVERE, "KHL photo url is null or is empty");
+                        continue;
                     }
+                    this.logger.log(Level.INFO, "KHL photo url - {0}", new Object[]{item.getLink()});
+                    URL urlOfPhoto = new URL(item.getLink());
+                    InputStream streamOfPhoto = urlOfPhoto.openStream();
+                    new KHLBot().execute(new SendPhoto().setCaption(item.getCaption()).setChatId(chatId).setPhoto("khlPhotoName", streamOfPhoto));
                 }
             }
+
         } catch (Exception ex) {
             this.logger.log(Level.SEVERE, "ScheduledKHLPhoto exception: ", ex);
         }

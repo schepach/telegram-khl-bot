@@ -1,16 +1,15 @@
 package ru.khl.bot.utils;
 
-import common.vk.connection.VKConnection;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
+import common.vk.utils.RedisEntity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,11 +29,15 @@ public class Connection {
         }
 
         MessageStructure messageStructure = new MessageStructure();
-        messageStructure.setWallItems(new ArrayList<WallItem>());
         WallItem wallItem = new WallItem();
-        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
+
+        if (doc.getElementsByAttributeValue("class", "b-content_section m-teaser") == null
+                || doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first() == null
+                || doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements() == null)
+            return null;
+
         Elements elements = doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements();
         String newsUrl;
 
@@ -46,7 +49,7 @@ public class Connection {
                 Item item = new Item();
                 item.setLink(newsUrl);
                 item.setPostType(Item.PostType.LINK);
-                VKConnection.checkRedisStore(item, wallItem, "KHL");
+                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
                 messageStructure.getWallItems().add(wallItem);
                 return messageStructure;
             }
@@ -62,11 +65,15 @@ public class Connection {
         }
 
         MessageStructure messageStructure = new MessageStructure();
-        messageStructure.setWallItems(new ArrayList<WallItem>());
         WallItem wallItem = new WallItem();
-        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
+
+        if (doc.getElementsByAttributeValue("id", "tab-photo-photoday") == null
+                || doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first() == null
+                || doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first().getAllElements() == null)
+            return null;
+
         Elements elements = doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first().getAllElements();
         String photoUrl;
 
@@ -82,7 +89,7 @@ public class Connection {
                 item.setCaption("ФОТО ДНЯ");
                 item.setLink(urlJPG);
                 item.setPostType(Item.PostType.PHOTO);
-                VKConnection.checkRedisStore(item, wallItem, "KHL");
+                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
                 messageStructure.getWallItems().add(wallItem);
                 return messageStructure;
             }
@@ -99,11 +106,15 @@ public class Connection {
         }
 
         MessageStructure messageStructure = new MessageStructure();
-        messageStructure.setWallItems(new ArrayList<WallItem>());
         WallItem wallItem = new WallItem();
-        wallItem.setItemList(new ArrayList<Item>());
 
         Document doc = Jsoup.connect(url).get();
+
+        if (doc.getElementsByAttributeValue("id", "tab-video-new") == null
+                || doc.getElementsByAttributeValue("id", "tab-video-new").first() == null
+                || doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements() == null)
+            return null;
+
         Elements elements = doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements();
         String videoUrl;
 
@@ -114,7 +125,7 @@ public class Connection {
                 videoUrl = elem.select("a").first().attr("abs:href");
                 item.setLink(videoUrl);
                 item.setPostType(Item.PostType.VIDEO);
-                VKConnection.checkRedisStore(item, wallItem, "KHL");
+                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
             }
 
             if (elem.attr("class").equals("b-short_block")) {
@@ -123,7 +134,7 @@ public class Connection {
                     videoUrl = current.select("a").attr("abs:href");
                     item.setLink(videoUrl);
                     item.setPostType(Item.PostType.VIDEO);
-                    VKConnection.checkRedisStore(item, wallItem, "KHL");
+                    RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
                 }
             }
         }

@@ -26,18 +26,24 @@ public class ScheduledKHLVideo extends TimerTask {
         try {
             MessageStructure messageStructure = Connection.getVideo(Constants.URL_KHL_INFO);
 
-            if (messageStructure != null && messageStructure.getWallItems() != null) {
-                for (WallItem wallItem : messageStructure.getWallItems()) {
-                    if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
-                        for (Item item : wallItem.getItemList()) {
-                            if (item.getLink() != null && !item.getLink().isEmpty()) {
-                                this.logger.log(Level.INFO, "VIDEO_KHL URL = " + item.getLink());
-                                new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
-                            }
-                        }
+            if (messageStructure == null || messageStructure.getWallItems() == null)
+                return;
+
+            for (WallItem wallItem : messageStructure.getWallItems()) {
+
+                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                    continue;
+
+                for (Item item : wallItem.getItemList()) {
+                    if (item.getLink() == null || item.getLink().isEmpty()) {
+                        this.logger.log(Level.SEVERE, "KHL video url is null or is empty");
+                        continue;
                     }
+                    this.logger.log(Level.INFO, "KHL video url - {0}", new Object[]{item.getLink()});
+                    new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                 }
             }
+
         } catch (Exception ex) {
             this.logger.log(Level.SEVERE, "ScheduledKHLVideo exception: ", ex);
         }

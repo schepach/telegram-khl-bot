@@ -25,18 +25,20 @@ public class ScheduledKHLNews extends TimerTask {
     public void run() {
         try {
             MessageStructure messageStructure = Connection.getKHLNews(Constants.URL_KHL_INFO);
-            if (messageStructure != null && messageStructure.getWallItems() != null) {
-                for (WallItem wallItem : messageStructure.getWallItems()) {
-                    if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
-                        for (Item item : wallItem.getItemList()) {
-                            if (item.getLink() != null && !item.getLink().isEmpty()) {
-                                this.logger.log(Level.INFO, "NEWS_KHL URL = " + item.getLink());
-                                new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
-                            } else {
-                                this.logger.log(Level.INFO, "NEWS_KHL URL is null or is empty");
-                            }
-                        }
+            if (messageStructure == null || messageStructure.getWallItems() == null)
+                return;
+
+            for (WallItem wallItem : messageStructure.getWallItems()) {
+
+                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                    continue;
+
+                for (Item item : wallItem.getItemList()) {
+                    if (item.getLink() == null || item.getLink().isEmpty()) {
+                        this.logger.log(Level.SEVERE, "KHL news url is null or is empty");
                     }
+                    this.logger.log(Level.INFO, "KHL news url - {0}", new Object[]{item.getLink()});
+                    new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                 }
             }
 
