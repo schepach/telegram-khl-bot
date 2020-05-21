@@ -47,69 +47,74 @@ public class ScheduledVKInfo extends TimerTask {
 
             MessageStructure messageStructure = VKConnection.getVKWallInfo(userInfo);
 
-            if (messageStructure != null && messageStructure.getWallItems() != null) {
+            if (messageStructure == null || messageStructure.getWallItems() == null
+                    || messageStructure.getWallItems().isEmpty()) {
+                logger.log(Level.SEVERE, "messageStructure is null or is empty");
+                return;
+            }
 
-                for (WallItem wallItem : messageStructure.getWallItems()) {
-                    if (wallItem.getItemList() != null && !wallItem.getItemList().isEmpty()) {
-                        List<InputMediaPhoto> photoList = new ArrayList<>();
-                        List<InputMedia> inputMediaList = new ArrayList<>();
-                        String titleWithPhoto = "";
-                        boolean captionFlag = false;
+            for (WallItem wallItem : messageStructure.getWallItems()) {
+                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                    continue;
 
-                        for (Item item : wallItem.getItemList()) {
-                            if (item.getPostType() != null && item.getPostType().value() != null && !item.getPostType().value().isEmpty()) {
-                                switch (item.getPostType()) {
-                                    case GIF:
-                                        URL URLGIF = new URL(item.getLink());
-                                        InputStream streamOfGIF = URLGIF.openStream();
-                                        new KHLBot().execute(new SendVideo().setChatId(chatId)
-                                                .setCaption(item.getTitle())
-                                                .setVideo("title", streamOfGIF));
-                                        break;
-                                    case FILE:
-                                        URL urlOfFile = new URL(item.getLink());
-                                        InputStream streamOfFile = urlOfFile.openStream();
-                                        new KHLBot().execute(new SendDocument().setChatId(chatId)
-                                                .setCaption(item.getCaption())
-                                                .setDocument(item.getTitle(), streamOfFile));
-                                        break;
-                                    case PHOTO:
-                                        double random = Math.random();
-                                        if (titleWithPhoto.isEmpty()) {
-                                            titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
-                                        }
-                                        InputMediaPhoto inputMediaPhoto = new InputMediaPhoto();
-                                        URL urlOfPhoto = new URL(item.getLink());
-                                        InputStream streamOfPhoto = urlOfPhoto.openStream();
-                                        inputMediaPhoto.setMedia(streamOfPhoto, "name".concat(String.valueOf(random)));
-                                        if (!captionFlag) {
-                                            if (titleWithPhoto.length() <= 200) {
-                                                inputMediaPhoto.setCaption(titleWithPhoto);
-                                                captionFlag = true;
-                                            }
-                                        }
-                                        photoList.add(inputMediaPhoto);
-                                        break;
-                                    default:
-                                        String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
-                                        String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
-                                        new KHLBot().execute(new SendMessage().setChatId(chatId).setText(title.concat("\n").concat(link).concat("\n")));
-                                        break;
+                List<InputMediaPhoto> photoList = new ArrayList<>();
+                List<InputMedia> inputMediaList = new ArrayList<>();
+                String titleWithPhoto = "";
+                boolean captionFlag = false;
+
+                for (Item item : wallItem.getItemList()) {
+                    if (item.getPostType() == null || item.getPostType().value() == null || item.getPostType().value().isEmpty())
+                        continue;
+
+                    switch (item.getPostType()) {
+                        case GIF:
+                            URL URLGIF = new URL(item.getLink());
+                            InputStream streamOfGIF = URLGIF.openStream();
+                            new KHLBot().execute(new SendVideo().setChatId(chatId)
+                                    .setCaption(item.getTitle())
+                                    .setVideo("title", streamOfGIF));
+                            break;
+                        case FILE:
+                            URL urlOfFile = new URL(item.getLink());
+                            InputStream streamOfFile = urlOfFile.openStream();
+                            new KHLBot().execute(new SendDocument().setChatId(chatId)
+                                    .setCaption(item.getCaption())
+                                    .setDocument(item.getTitle(), streamOfFile));
+                            break;
+                        case PHOTO:
+                            double random = Math.random();
+                            if (titleWithPhoto.isEmpty()) {
+                                titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
+                            }
+                            InputMediaPhoto inputMediaPhoto = new InputMediaPhoto();
+                            URL urlOfPhoto = new URL(item.getLink());
+                            InputStream streamOfPhoto = urlOfPhoto.openStream();
+                            inputMediaPhoto.setMedia(streamOfPhoto, "name".concat(String.valueOf(random)));
+                            if (!captionFlag) {
+                                if (titleWithPhoto.length() <= 200) {
+                                    inputMediaPhoto.setCaption(titleWithPhoto);
+                                    captionFlag = true;
                                 }
                             }
-                        }
-
-                        if (!photoList.isEmpty()) {
-                            if (!captionFlag) {
-                                new KHLBot().execute(new SendMessage().setChatId(chatId).setText(titleWithPhoto));
-                            }
-                            inputMediaList.addAll(photoList);
-                            SendMediaGroup sendMediaGroup = new SendMediaGroup();
-                            sendMediaGroup.setChatId(chatId);
-                            sendMediaGroup.setMedia(inputMediaList);
-                            new KHLBot().execute(sendMediaGroup);
-                        }
+                            photoList.add(inputMediaPhoto);
+                            break;
+                        default:
+                            String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
+                            String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
+                            new KHLBot().execute(new SendMessage().setChatId(chatId).setText(title.concat("\n").concat(link).concat("\n")));
+                            break;
                     }
+                }
+
+                if (!photoList.isEmpty()) {
+                    if (!captionFlag) {
+                        new KHLBot().execute(new SendMessage().setChatId(chatId).setText(titleWithPhoto));
+                    }
+                    inputMediaList.addAll(photoList);
+                    SendMediaGroup sendMediaGroup = new SendMediaGroup();
+                    sendMediaGroup.setChatId(chatId);
+                    sendMediaGroup.setMedia(inputMediaList);
+                    new KHLBot().execute(sendMediaGroup);
                 }
             }
 
