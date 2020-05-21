@@ -73,7 +73,7 @@ public class Connection {
             return null;
 
         String photoUrl = photoElement.absUrl("src");
-        String photoName = photoNameElement.text();
+        String photoName = (photoNameElement != null && !photoNameElement.text().isEmpty() ? photoNameElement.text() : "ФОТО ДНЯ");
         LOGGER.log(Level.INFO, "Name photo of day = {0}, url = {1}", new Object[]{photoName, photoUrl});
 
         if (photoUrl != null && !photoUrl.isEmpty()) {
