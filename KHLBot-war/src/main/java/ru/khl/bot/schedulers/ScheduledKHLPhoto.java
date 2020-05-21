@@ -5,7 +5,6 @@ import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
 import java.io.InputStream;
@@ -26,7 +25,7 @@ public class ScheduledKHLPhoto extends TimerTask {
     @Override
     public void run() {
         try {
-            MessageStructure messageStructure = Connection.getPhotoToday(Constants.URL_KHL_INFO);
+            MessageStructure messageStructure = Connection.getPhotoToday();
 
             if (messageStructure == null || messageStructure.getWallItems() == null)
                 return;

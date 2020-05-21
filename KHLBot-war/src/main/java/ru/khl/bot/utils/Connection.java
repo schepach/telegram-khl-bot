@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.khl.bot.constants.Constants;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -57,42 +58,34 @@ public class Connection {
         return null;
     }
 
-    public static MessageStructure getPhotoToday(String url) throws IOException {
+    public static MessageStructure getPhotoToday() throws IOException {
 
-        if (BotHelper.getResponseCode(url) != 200) {
+        if (BotHelper.getResponseCode(Constants.URL_PHOTO_OF_DAY) != 200) {
             LOGGER.log(Level.INFO, "ResponseCode != 200....");
             return null;
         }
+        Document doc = Jsoup.connect(Constants.URL_PHOTO_OF_DAY).get();
 
-        MessageStructure messageStructure = new MessageStructure();
-        WallItem wallItem = new WallItem();
+        Element photoNameElement = doc.select("div.page_wrapper.us-non1e div.page_content a").first();
+        Element photoElement = doc.select("img[src$=.jpg]").first();
 
-        Document doc = Jsoup.connect(url).get();
-
-        if (doc.getElementsByAttributeValue("id", "tab-photo-photoday") == null
-                || doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first() == null
-                || doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first().getAllElements() == null)
+        if (photoElement == null)
             return null;
 
-        Elements elements = doc.getElementsByAttributeValue("id", "tab-photo-photoday").select("ul").select("li").select("a").first().getAllElements();
-        String photoUrl;
+        String photoUrl = photoElement.absUrl("src");
+        String photoName = photoNameElement.text();
+        LOGGER.log(Level.INFO, "Name photo of day = {0}, url = {1}", new Object[]{photoName, photoUrl});
 
-        for (Element elem : elements) {
-
-            photoUrl = elem.attr("style");
-
-            if (photoUrl != null && !photoUrl.isEmpty()) {
-
-                String urlJPG = "https://".concat(photoUrl.substring(photoUrl.lastIndexOf("//") + 2, photoUrl.lastIndexOf(")")));
-
-                Item item = new Item();
-                item.setCaption("ФОТО ДНЯ");
-                item.setLink(urlJPG);
-                item.setPostType(Item.PostType.PHOTO);
-                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
-                messageStructure.getWallItems().add(wallItem);
-                return messageStructure;
-            }
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            MessageStructure messageStructure = new MessageStructure();
+            WallItem wallItem = new WallItem();
+            Item item = new Item();
+            item.setCaption(photoName);
+            item.setLink(photoUrl);
+            item.setPostType(Item.PostType.PHOTO);
+            RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
+            messageStructure.getWallItems().add(wallItem);
+            return messageStructure;
         }
         return null;
     }

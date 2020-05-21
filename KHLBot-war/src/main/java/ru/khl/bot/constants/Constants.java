@@ -74,6 +74,7 @@ public class Constants {
 
 
     public static final String URL_KHL_INFO = "https://www.khl.ru";
+    public static final String URL_PHOTO_OF_DAY = "https://photo.khl.ru/";
 
     public static final String START_TEXT = "Enter your favorite conference. /help - помощь";
     public static final String HELP = "/HELP";
