@@ -47,9 +47,10 @@ public class ScheduledVKInfo extends TimerTask {
 
             MessageStructure messageStructure = VKConnection.getVKWallInfo(userInfo);
 
-            if (messageStructure == null || messageStructure.getWallItems() == null
+            if (messageStructure == null
+                    || messageStructure.getWallItems() == null
                     || messageStructure.getWallItems().isEmpty()) {
-                logger.log(Level.SEVERE, "messageStructure is null or is empty");
+                logger.log(Level.SEVERE, "No new messages from VK...");
                 return;
             }
 
@@ -63,13 +64,15 @@ public class ScheduledVKInfo extends TimerTask {
                 boolean captionFlag = false;
 
                 for (Item item : wallItem.getItemList()) {
-                    if (item.getPostType() == null || item.getPostType().value() == null || item.getPostType().value().isEmpty())
+                    if (item.getPostType() == null
+                            || item.getPostType().value() == null
+                            || item.getPostType().value().isEmpty())
                         continue;
 
                     switch (item.getPostType()) {
                         case GIF:
-                            URL URLGIF = new URL(item.getLink());
-                            InputStream streamOfGIF = URLGIF.openStream();
+                            URL urlGif = new URL(item.getLink());
+                            InputStream streamOfGIF = urlGif.openStream();
                             new KHLBot().execute(new SendVideo().setChatId(chatId)
                                     .setCaption(item.getTitle())
                                     .setVideo("title", streamOfGIF));
@@ -82,6 +85,9 @@ public class ScheduledVKInfo extends TimerTask {
                                     .setDocument(item.getTitle(), streamOfFile));
                             break;
                         case PHOTO:
+                            if (item.getLink() == null)
+                                break;
+
                             double random = Math.random();
                             if (titleWithPhoto.isEmpty()) {
                                 titleWithPhoto = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
