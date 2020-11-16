@@ -36,93 +36,93 @@ public class BotHelper {
                 //WEST Conference
                 case Constants.SKA:
                     url = Constants.URL_SKA;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.CSKA:
                     url = Constants.URL_CSKA;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.TORPEDO:
                     url = Constants.URL_TORPEDO;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.LOKOMOTIV:
                     url = Constants.URL_LOKOMOTIV;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.DINAMO_MSK:
                     url = Constants.URL_DINAMO_MSK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.DINAMO_MINSK:
                     url = Constants.URL_DINAMO_MINSK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.JOKERIT:
                     url = Constants.URL_JOKERIT;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.VITYAZ:
                     url = Constants.URL_VITYAZ;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SOCHI:
                     url = Constants.URL_SOCHI;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SPARTAK:
                     url = Constants.URL_SPARTAK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.MEDVESCAK:
                     url = Constants.URL_MEDVESCAK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SLOVAN:
                     url = Constants.URL_SLOVAN;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SEVERSTAL:
                     url = Constants.URL_SEVERSTAL;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.DINAMO_RIGA:
                     url = Constants.URL_DINAMO_RIGA;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
 
                 // EAST Conference
                 case Constants.METALLURG_MAGNITOGORSK:
                     url = Constants.URL_METALLURG_MAGNITOGORSK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.AVANGARD:
                     url = Constants.URL_AVANGARD;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.AK_BARS:
                     url = Constants.URL_AK_BARS;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SALAVAT_YULAEV:
                     url = Constants.URL_SALAVAT_YULAEV;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.TRAKTOR:
                     url = Constants.URL_TRAKTOR;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.ADMIRAL:
                     url = Constants.URL_ADMIRAL;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.KUNLUN_RED_STAR:
                     url = Constants.URL_KUNLUN_RED_STAR;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.NEFTEKHIMIK:
                     url = Constants.URL_NEFTEKHIMIK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.SIBIR:
                     url = Constants.URL_SIBIR;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.BARYS:
                     url = Constants.URL_BARYS;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.AVTOMOBILIST:
                     url = Constants.URL_AVTOMOBILIST;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.LADA:
                     url = Constants.URL_LADA;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.AMUR:
                     url = Constants.URL_AMUR;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.UGRA:
                     url = Constants.URL_UGRA;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 case Constants.METALLURG_NOVOKUZNETSK:
                     url = Constants.URL_METALLURG_NOVOKUZNETSK;
-                    return Connection.getInfoForHockeyClub(url);
+                    return Connection.getInfoAboutHockeyClub(url);
                 default:
                     return Constants.ERROR_OTHER_INPUT;
             }

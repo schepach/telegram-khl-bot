@@ -147,7 +147,7 @@ public class Connection {
         return messageStructure;
     }
 
-    static String getInfoForHockeyClub(String url) throws IOException {
+    static String getInfoAboutHockeyClub(String url) throws IOException {
 
         int responseCode = BotHelper.getResponseCode(url);
         if (responseCode != 200) {
@@ -155,51 +155,40 @@ public class Connection {
             return null;
         }
 
-        Document doc = Jsoup.connect(url).get();
-        Elements elements = doc.select("dl");
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Подписывайтесь на канал KHL Info https://t.me/KHL_Info - там Вас ждет много интересного!").append("\n");
-
         String club1;
         String club2;
         String when;
         String totalScore;
-        String details;
+
+        Document doc = Jsoup.connect(url).get();
+        Elements elements = doc.select("div.b-content_section.s-float_panel_start div.b-blocks_cover div.b-half_block ul.b-wide_tile li.b-wide_tile_item");
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Подписывайтесь на канал KHL Info https://t.me/KHL_Info - там Вас ждет много интересного!").append("\n\n");
 
         for (Element item : elements) {
 
-            if (item.attr("class").equals("b-details m-club")) {
-                club1 = item.select("dd").select("h5").text();
-                if (!club1.isEmpty()) {
-                    stringBuilder.append("\n").append("Команда: ".concat(club1)).append(" (").append(item.select("dd").select("p").first().text()).append(")").append("\n");
-                }
-            }
+            //Get VS commands
+            Elements clubsItem = item.select("dd.b-details_txt");
+            club1 = clubsItem.get(0).select("h5.e-club_name").text().concat("(").concat(clubsItem.get(0).select("p.e-club_sity").text().concat(")"));
+            club2 = clubsItem.get(1).select("h5.e-club_name").text().concat("(").concat(clubsItem.get(1).select("p.e-club_sity").text().concat(")"));
+            stringBuilder.append(club1).append(" - ").append(club2).append("\n");
 
-            if (item.attr("class").equals("b-score")) {
-                when = item.select("dt").select("b").text();
-                if (!when.isEmpty()) {
-                    stringBuilder.append("Когда: ".concat(when)).append("\n");
-                }
-                totalScore = item.select("dt").select("h3").text();
-                if (!totalScore.isEmpty()) {
-                    stringBuilder.append("Результат: ".concat(totalScore)).append("\n");
-                }
-                details = item.select("dd").select("ul").text();
-                if (!details.isEmpty()) {
-                    stringBuilder.append("Подробно: ".concat(details)).append("\n");
-                }
+            //Get WHEN or TOTAL SCORE
+            Elements whenItem = item.select("dt.b-total_score");
+            if (whenItem.size() == 1) {
+                when = "Дата встречи: " + whenItem.select("b.e-match-num").text() + " в " + whenItem.select("h3").first().text();
+                stringBuilder.append(when);
+            } else {
+                totalScore = "Дата встречи: " + whenItem.get(0).select("b.e-match-num").text() + "\n"
+                        + "Результат: " + whenItem.get(1).select("h3").text() + "\n"
+                        + "Подробно: " + item.select("dd.b-period_score").text();
+                stringBuilder.append(totalScore);
             }
-
-            if (item.attr("class").equals("b-details m-club m-rightward")) {
-                club2 = item.select("dd").select("h5").text();
-                if (!club2.isEmpty()) {
-                    stringBuilder.append("Против: ".concat(club2)).append(" (").append(item.select("dd").select("p").first().text()).append(")").append("\n-------\uD83C\uDFD2\uD83C\uDFC6\uD83D\uDCAA\uD83C\uDFFB-------\n");
-                }
-            }
-
+            stringBuilder.append("\n-------\uD83C\uDFD2\uD83C\uDFC6\uD83D\uDCAA\uD83C\uDFFB-------\n");
         }
-        LOGGER.log(Level.INFO, "INFO_ABOUT_COMMAND" + stringBuilder.toString());
+
+        LOGGER.log(Level.INFO, "INFO_ABOUT_COMMAND: " + stringBuilder.toString());
 
         return stringBuilder.toString();
     }
