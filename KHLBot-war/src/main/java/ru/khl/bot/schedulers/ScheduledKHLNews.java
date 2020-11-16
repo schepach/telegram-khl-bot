@@ -25,7 +25,10 @@ public class ScheduledKHLNews extends TimerTask {
     public void run() {
         try {
             MessageStructure messageStructure = Connection.getKHLNews(Constants.URL_KHL_INFO);
-            if (messageStructure == null || messageStructure.getWallItems() == null)
+
+            if (messageStructure == null
+                    || messageStructure.getWallItems() == null
+                    || messageStructure.getWallItems().isEmpty())
                 return;
 
             for (WallItem wallItem : messageStructure.getWallItems()) {

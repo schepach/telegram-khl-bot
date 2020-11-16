@@ -31,33 +31,41 @@ public class Connection {
             return null;
         }
 
-        MessageStructure messageStructure = new MessageStructure();
-        WallItem wallItem = new WallItem();
-
         Document doc = Jsoup.connect(url).get();
-
-        if (doc.getElementsByAttributeValue("class", "b-content_section m-teaser") == null
-                || doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first() == null
-                || doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements() == null)
-            return null;
-
-        Elements elements = doc.getElementsByAttributeValue("class", "b-content_section m-teaser").first().getAllElements();
+        WallItem wallItem = new WallItem();
         String newsUrl;
+        Item item;
 
-        for (Element elem : elements) {
-
-            if (elem.attr("class").equals("b-middle_block")) {
-
-                newsUrl = elem.select("a").first().attr("abs:href");
-                Item item = new Item();
+        // Get fresh news
+        Element newsElement = doc.select("div.b-content_section.m-teaser a[href]").first();
+        if (newsElement != null) {
+            newsUrl = newsElement.absUrl("abs:href");
+            if (newsUrl != null && !newsUrl.isEmpty()) {
+                item = new Item();
                 item.setLink(newsUrl);
                 item.setPostType(Item.PostType.LINK);
                 RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
-                messageStructure.getWallItems().add(wallItem);
-                return messageStructure;
             }
         }
-        return null;
+
+        // Get old news
+        Elements oldNewsElements = doc.select("div.b-content_section.m-video.s-float_panel_start div.b-news_bnr_item");
+        for (Element current : oldNewsElements) {
+            newsElement = current.select("a").first();
+            if (newsElement == null)
+                continue;
+
+            newsUrl = newsElement.absUrl("abs:href");
+            item = new Item();
+            item.setLink(newsUrl);
+            item.setPostType(Item.PostType.LINK);
+            RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
+        }
+
+        MessageStructure messageStructure = new MessageStructure();
+        messageStructure.getWallItems().add(wallItem);
+
+        return messageStructure;
     }
 
     public static MessageStructure getPhotoToday() throws IOException {

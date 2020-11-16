@@ -26,12 +26,15 @@ public class ScheduledKHLVideo extends TimerTask {
         try {
             MessageStructure messageStructure = Connection.getVideo(Constants.URL_KHL_INFO);
 
-            if (messageStructure == null || messageStructure.getWallItems() == null)
+            if (messageStructure == null
+                    || messageStructure.getWallItems() == null
+                    || messageStructure.getWallItems().isEmpty())
                 return;
 
             for (WallItem wallItem : messageStructure.getWallItems()) {
 
-                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                if (wallItem.getItemList() == null
+                        || wallItem.getItemList().isEmpty())
                     continue;
 
                 for (Item item : wallItem.getItemList()) {
