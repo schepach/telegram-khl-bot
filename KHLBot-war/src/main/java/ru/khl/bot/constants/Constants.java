@@ -80,7 +80,6 @@ public class Constants {
     public static final String HELP = "/HELP";
     public static final String START = "/START";
     public static final String ERROR_OTHER_INPUT = "Bad Command! /help - помощь";
-    public static final String UNEXPECTED_ERROR = "Unexpected error occurred: ";
 
     public static final String HELP_TEXT =
             "I have next commands:\n" +

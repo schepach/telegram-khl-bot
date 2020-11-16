@@ -21,11 +21,13 @@ import java.util.logging.Logger;
 public class Connection {
 
     private static final Logger LOGGER = Logger.getLogger(Connection.class.getSimpleName());
+    private static final String ALIAS = "KHL";
 
     public static MessageStructure getKHLNews(String url) throws IOException {
 
-        if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.log(Level.INFO, "ResponseCode != 200....");
+        int responseCode = BotHelper.getResponseCode(url);
+        if (responseCode != 200) {
+            LOGGER.log(Level.SEVERE, "Response code = {0}", responseCode);
             return null;
         }
 
@@ -50,7 +52,7 @@ public class Connection {
                 Item item = new Item();
                 item.setLink(newsUrl);
                 item.setPostType(Item.PostType.LINK);
-                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
+                RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
                 messageStructure.getWallItems().add(wallItem);
                 return messageStructure;
             }
@@ -60,12 +62,13 @@ public class Connection {
 
     public static MessageStructure getPhotoToday() throws IOException {
 
-        if (BotHelper.getResponseCode(Constants.URL_PHOTO_OF_DAY) != 200) {
-            LOGGER.log(Level.INFO, "ResponseCode != 200....");
+        int responseCode = BotHelper.getResponseCode(Constants.URL_PHOTO_OF_DAY);
+        if (responseCode != 200) {
+            LOGGER.log(Level.SEVERE, "Response code = {0}", responseCode);
             return null;
         }
-        Document doc = Jsoup.connect(Constants.URL_PHOTO_OF_DAY).get();
 
+        Document doc = Jsoup.connect(Constants.URL_PHOTO_OF_DAY).get();
         Element photoNameElement = doc.select("div.page_wrapper.us-non1e div.page_content a").first();
         Element photoElement = doc.select("img[src$=.jpg]").first();
 
@@ -83,7 +86,7 @@ public class Connection {
             item.setCaption(photoName);
             item.setLink(photoUrl);
             item.setPostType(Item.PostType.PHOTO);
-            RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
+            RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
             messageStructure.getWallItems().add(wallItem);
             return messageStructure;
         }
@@ -93,57 +96,58 @@ public class Connection {
 
     public static MessageStructure getVideo(String url) throws IOException {
 
-        if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.log(Level.INFO, "ResponseCode != 200....");
+        int responseCode = BotHelper.getResponseCode(url);
+        if (responseCode != 200) {
+            LOGGER.log(Level.SEVERE, "Response code = {0}", responseCode);
             return null;
+        }
+
+        WallItem wallItem = new WallItem();
+        String videoUrl;
+        Item item;
+        Document doc = Jsoup.connect(url).get();
+
+        // middle block (new video)
+        Element videoElement = doc.select("div.tab-video div.b-middle_block a[href]").first();
+        if (videoElement != null) {
+            videoUrl = videoElement.absUrl("abs:href");
+            if (videoUrl != null && !videoUrl.isEmpty()) {
+                item = new Item();
+                item.setLink(videoUrl);
+                item.setPostType(Item.PostType.VIDEO);
+                RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
+            }
+        }
+
+        // short block (old videos)
+        Elements videoElementsOfShortBlock = doc.select("div.tab-video div.b-short_block div.b-short_block_cover");
+        for (Element videoItem : videoElementsOfShortBlock) {
+            videoElement = videoItem.select("a").first();
+            if (videoElement == null)
+                continue;
+
+            videoUrl = videoElement.absUrl("abs:href");
+            item = new Item();
+            item.setLink(videoUrl);
+            item.setPostType(Item.PostType.VIDEO);
+            RedisEntity.getInstance().checkRedisStore(ALIAS, item, wallItem);
         }
 
         MessageStructure messageStructure = new MessageStructure();
-        WallItem wallItem = new WallItem();
-
-        Document doc = Jsoup.connect(url).get();
-
-        if (doc.getElementsByAttributeValue("id", "tab-video-new") == null
-                || doc.getElementsByAttributeValue("id", "tab-video-new").first() == null
-                || doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements() == null)
-            return null;
-
-        Elements elements = doc.getElementsByAttributeValue("id", "tab-video-new").first().getAllElements();
-        String videoUrl;
-
-        for (Element elem : elements) {
-
-            if (elem.attr("class").equals("b-middle_block")) {
-                Item item = new Item();
-                videoUrl = elem.select("a").first().attr("abs:href");
-                item.setLink(videoUrl);
-                item.setPostType(Item.PostType.VIDEO);
-                RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
-            }
-
-            if (elem.attr("class").equals("b-short_block")) {
-                for (Element current : elem.getAllElements().select("div")) {
-                    Item item = new Item();
-                    videoUrl = current.select("a").attr("abs:href");
-                    item.setLink(videoUrl);
-                    item.setPostType(Item.PostType.VIDEO);
-                    RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
-                }
-            }
-        }
-
         messageStructure.getWallItems().add(wallItem);
+
         return messageStructure;
     }
 
     static String getInfoForHockeyClub(String url) throws IOException {
 
-        if (BotHelper.getResponseCode(url) != 200) {
-            LOGGER.log(Level.INFO, "ResponseCode != 200....");
+        int responseCode = BotHelper.getResponseCode(url);
+        if (responseCode != 200) {
+            LOGGER.log(Level.SEVERE, "Response code = {0}", responseCode);
             return null;
         }
-        Document doc = Jsoup.connect(url).get();
 
+        Document doc = Jsoup.connect(url).get();
         Elements elements = doc.select("dl");
 
         StringBuilder stringBuilder = new StringBuilder();
