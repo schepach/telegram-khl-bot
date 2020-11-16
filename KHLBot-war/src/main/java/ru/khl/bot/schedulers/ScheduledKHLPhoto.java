@@ -25,7 +25,7 @@ public class ScheduledKHLPhoto extends TimerTask {
     @Override
     public void run() {
         try {
-            MessageStructure messageStructure = Connection.getPhotoToday();
+            MessageStructure messageStructure = Connection.getPhotoOfTheDay();
 
             if (messageStructure == null || messageStructure.getWallItems() == null)
                 return;

@@ -50,8 +50,8 @@ public class Connection {
 
         // Get old news
         Elements oldNewsElements = doc.select("div.b-content_section.m-video.s-float_panel_start div.b-news_bnr_item");
-        for (Element current : oldNewsElements) {
-            newsElement = current.select("a").first();
+        for (Element newsElem : oldNewsElements) {
+            newsElement = newsElem.select("a").first();
             if (newsElement == null)
                 continue;
 
@@ -68,7 +68,7 @@ public class Connection {
         return messageStructure;
     }
 
-    public static MessageStructure getPhotoToday() throws IOException {
+    public static MessageStructure getPhotoOfTheDay() throws IOException {
 
         int responseCode = BotHelper.getResponseCode(Constants.URL_PHOTO_OF_DAY);
         if (responseCode != 200) {
