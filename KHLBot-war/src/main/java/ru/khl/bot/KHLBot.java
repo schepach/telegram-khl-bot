@@ -42,16 +42,19 @@ public class KHLBot extends TelegramLongPollingBot {
     }
 
     private void sendMsg(Message message, String text) {
-        if (text != null && !text.isEmpty()) {
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setText(text);
-            sendMessage.setChatId(message.getChatId().toString());
-            sendMessage.setReplyToMessageId(message.getMessageId());
-            try {
-                execute(sendMessage);
-            } catch (Exception ex) {
-                this.logger.log(Level.SEVERE, "Method sendMsg exception: ", ex);
-            }
+        if (text == null
+                || text.isEmpty()
+                || message.getChatId() == null)
+            return;
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText(text);
+        sendMessage.setChatId(message.getChatId().toString());
+        sendMessage.setReplyToMessageId(message.getMessageId());
+        try {
+            execute(sendMessage);
+        } catch (Exception ex) {
+            this.logger.log(Level.SEVERE, "Method sendMsg exception: ", ex);
         }
     }
 }

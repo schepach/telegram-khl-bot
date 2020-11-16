@@ -140,7 +140,7 @@ public class Connection {
 
         if (BotHelper.getResponseCode(url) != 200) {
             LOGGER.log(Level.INFO, "ResponseCode != 200....");
-            return "";
+            return null;
         }
         Document doc = Jsoup.connect(url).get();
 

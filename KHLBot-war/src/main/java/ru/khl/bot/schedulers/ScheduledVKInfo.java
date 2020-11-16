@@ -55,7 +55,8 @@ public class ScheduledVKInfo extends TimerTask {
             }
 
             for (WallItem wallItem : messageStructure.getWallItems()) {
-                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                if (wallItem.getItemList() == null
+                        || wallItem.getItemList().isEmpty())
                     continue;
 
                 List<InputMediaPhoto> photoList = new ArrayList<>();
