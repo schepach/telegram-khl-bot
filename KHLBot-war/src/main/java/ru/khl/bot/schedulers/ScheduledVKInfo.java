@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 public class ScheduledVKInfo extends TimerTask {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-    private final String chatId = "@KHL_Info";
+    private final String chatId = "@khl_unofficial";
 
     @Override
     public void run() {

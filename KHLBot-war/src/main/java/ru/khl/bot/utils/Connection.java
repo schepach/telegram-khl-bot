@@ -164,7 +164,7 @@ public class Connection {
         Elements elements = doc.select("div.b-content_section.s-float_panel_start div.b-blocks_cover div.b-half_block ul.b-wide_tile li.b-wide_tile_item");
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Подписывайтесь на канал KHL Info https://t.me/KHL_Info - там Вас ждет много интересного!").append("\n\n");
+        stringBuilder.append("Подписывайтесь на канал KHL https://t.me/khl_unofficial - там Вас ждет много интересного!").append("\n\n");
 
         for (Element item : elements) {
 
