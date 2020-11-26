@@ -34,11 +34,11 @@ public class KHLBot extends TelegramLongPollingBot {
 
 
     public String getBotUsername() {
-        return "botname";
+        return "botName";
     }
 
     public String getBotToken() {
-        return "bottoken";
+        return "botToken";
     }
 
     private void sendMsg(Message message, String text) {

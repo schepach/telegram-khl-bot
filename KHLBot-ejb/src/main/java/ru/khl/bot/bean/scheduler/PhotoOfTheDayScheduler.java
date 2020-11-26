@@ -1,4 +1,4 @@
-package ru.khl.bot.schedulers;
+package ru.khl.bot.bean.scheduler;
 
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
@@ -7,23 +7,24 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.utils.Connection;
 
+import javax.ejb.Singleton;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by Alexey on 13.12.2016.
  */
-
-public class ScheduledKHLPhoto extends TimerTask {
+@Singleton
+public class PhotoOfTheDayScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
-    @Override
     public void run() {
+        logger.log(Level.SEVERE, "Start PhotoOfTheDayScheduler...");
+
         try {
             MessageStructure messageStructure = Connection.getPhotoOfTheDay();
 
@@ -48,7 +49,7 @@ public class ScheduledKHLPhoto extends TimerTask {
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "ScheduledKHLPhoto exception: ", ex);
+            this.logger.log(Level.SEVERE, "PhotoOfTheDayScheduler exception: ", ex);
         }
     }
 }

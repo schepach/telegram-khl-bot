@@ -1,6 +1,5 @@
-package ru.khl.bot.schedulers;
+package ru.khl.bot.bean.scheduler;
 
-import com.vk.api.sdk.client.actors.ServiceActor;
 import common.vk.connection.VKConnection;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
@@ -14,11 +13,11 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import ru.khl.bot.KHLBot;
 
+import javax.ejb.Singleton;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,13 +25,15 @@ import java.util.logging.Logger;
  * Created by Alexey on 13.12.2016.
  */
 
-public class ScheduledVKInfo extends TimerTask {
+@Singleton
+public class VKInfoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
-    @Override
+
     public void run() {
+        logger.log(Level.SEVERE, "Start VKInfoScheduler...");
 
         try {
             UserInfo userInfo = new UserInfo();
@@ -126,7 +127,7 @@ public class ScheduledVKInfo extends TimerTask {
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "ScheduledVKInfo exception: ", ex);
+            this.logger.log(Level.SEVERE, "VKInfoScheduler exception: ", ex);
         }
     }
 }

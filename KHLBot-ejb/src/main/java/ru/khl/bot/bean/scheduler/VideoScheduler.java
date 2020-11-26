@@ -1,4 +1,4 @@
-package ru.khl.bot.schedulers;
+package ru.khl.bot.bean.scheduler;
 
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
@@ -8,7 +8,7 @@ import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
-import java.util.TimerTask;
+import javax.ejb.Singleton;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,15 +16,17 @@ import java.util.logging.Logger;
  * Created by Alexey on 13.12.2016.
  */
 
-public class ScheduledKHLNews extends TimerTask {
+@Singleton
+public class VideoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
-    @Override
     public void run() {
+        logger.log(Level.SEVERE, "Start VideoScheduler...");
+
         try {
-            MessageStructure messageStructure = Connection.getKHLNews(Constants.URL_KHL_INFO);
+            MessageStructure messageStructure = Connection.getVideo(Constants.URL_KHL_INFO);
 
             if (messageStructure == null
                     || messageStructure.getWallItems() == null
@@ -33,20 +35,22 @@ public class ScheduledKHLNews extends TimerTask {
 
             for (WallItem wallItem : messageStructure.getWallItems()) {
 
-                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                if (wallItem.getItemList() == null
+                        || wallItem.getItemList().isEmpty())
                     continue;
 
                 for (Item item : wallItem.getItemList()) {
                     if (item.getLink() == null || item.getLink().isEmpty()) {
-                        this.logger.log(Level.SEVERE, "KHL news url is null or is empty");
+                        this.logger.log(Level.SEVERE, "KHL video url is null or is empty");
+                        continue;
                     }
-                    this.logger.log(Level.INFO, "KHL news url - {0}", new Object[]{item.getLink()});
+                    this.logger.log(Level.INFO, "KHL video url - {0}", new Object[]{item.getLink()});
                     new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                 }
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "ScheduledKHLNews exception: ", ex);
+            this.logger.log(Level.SEVERE, "VideoScheduler exception: ", ex);
         }
     }
 }
