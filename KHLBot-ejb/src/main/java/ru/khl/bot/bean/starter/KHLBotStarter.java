@@ -58,22 +58,22 @@ public class KHLBotStarter {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "7-01")
     public void getNews() {
         newsScheduler.run();
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "7-01")
     public void getPhoto() {
         photoOfTheDayScheduler.run();
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "7-01")
     public void getVideo() {
         videoScheduler.run();
     }
 
-    @Schedule(hour = "*", minute = "30")
+    @Schedule(hour = "7-01", minute = "0,10,30,50")
     public void getVKInfo() {
         vkInfoScheduler.run();
     }
