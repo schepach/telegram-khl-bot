@@ -15,17 +15,18 @@ import java.util.logging.Logger;
 /**
  * Created by Alexey on 13.12.2016.
  */
+
 @Singleton
-public class NewsScheduler {
+public class KHLVideoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
     public void run() {
-        logger.log(Level.SEVERE, "Start NewsScheduler...");
+        logger.log(Level.SEVERE, "Start KHLVideoScheduler...");
 
         try {
-            MessageStructure messageStructure = Connection.getKHLNews(Constants.URL_KHL_INFO);
+            MessageStructure messageStructure = Connection.getVideo(Constants.URL_KHL_INFO);
 
             if (messageStructure == null
                     || messageStructure.getWallItems() == null
@@ -34,20 +35,22 @@ public class NewsScheduler {
 
             for (WallItem wallItem : messageStructure.getWallItems()) {
 
-                if (wallItem.getItemList() == null || wallItem.getItemList().isEmpty())
+                if (wallItem.getItemList() == null
+                        || wallItem.getItemList().isEmpty())
                     continue;
 
                 for (Item item : wallItem.getItemList()) {
                     if (item.getLink() == null || item.getLink().isEmpty()) {
-                        this.logger.log(Level.SEVERE, "KHL news url is null or is empty");
+                        this.logger.log(Level.SEVERE, "KHL video url is null or is empty");
+                        continue;
                     }
-                    this.logger.log(Level.INFO, "KHL news url - {0}", new Object[]{item.getLink()});
+                    this.logger.log(Level.INFO, "KHL video url - {0}", new Object[]{item.getLink()});
                     new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
                 }
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "NewsScheduler exception: ", ex);
+            this.logger.log(Level.SEVERE, "KHLVideoScheduler exception: ", ex);
         }
     }
 }

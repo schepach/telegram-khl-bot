@@ -17,13 +17,13 @@ import java.util.logging.Logger;
  * Created by Alexey on 13.12.2016.
  */
 @Singleton
-public class PhotoOfTheDayScheduler {
+public class KHLPhotoOfTheDayScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
     public void run() {
-        logger.log(Level.SEVERE, "Start PhotoOfTheDayScheduler...");
+        logger.log(Level.SEVERE, "Start KHLPhotoOfTheDayScheduler...");
 
         try {
             MessageStructure messageStructure = Connection.getPhotoOfTheDay();
@@ -49,7 +49,7 @@ public class PhotoOfTheDayScheduler {
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "PhotoOfTheDayScheduler exception: ", ex);
+            this.logger.log(Level.SEVERE, "KHLPhotoOfTheDayScheduler exception: ", ex);
         }
     }
 }

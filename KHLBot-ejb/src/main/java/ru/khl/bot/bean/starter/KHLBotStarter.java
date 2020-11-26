@@ -4,10 +4,10 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.generics.BotSession;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.bean.scheduler.NewsScheduler;
-import ru.khl.bot.bean.scheduler.PhotoOfTheDayScheduler;
-import ru.khl.bot.bean.scheduler.VKInfoScheduler;
-import ru.khl.bot.bean.scheduler.VideoScheduler;
+import ru.khl.bot.bean.scheduler.KHLNewsScheduler;
+import ru.khl.bot.bean.scheduler.KHLPhotoOfTheDayScheduler;
+import ru.khl.bot.bean.scheduler.KHLVKInfoScheduler;
+import ru.khl.bot.bean.scheduler.KHLVideoScheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -28,13 +28,13 @@ import java.util.logging.Logger;
 public class KHLBotStarter {
 
     @Inject
-    NewsScheduler newsScheduler;
+    KHLNewsScheduler newsScheduler;
     @Inject
-    PhotoOfTheDayScheduler photoOfTheDayScheduler;
+    KHLPhotoOfTheDayScheduler photoOfTheDayScheduler;
     @Inject
-    VideoScheduler videoScheduler;
+    KHLVideoScheduler videoScheduler;
     @Inject
-    VKInfoScheduler vkInfoScheduler;
+    KHLVKInfoScheduler vkInfoScheduler;
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private BotSession botSession;

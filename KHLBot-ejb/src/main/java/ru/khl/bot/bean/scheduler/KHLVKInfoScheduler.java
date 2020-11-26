@@ -26,14 +26,14 @@ import java.util.logging.Logger;
  */
 
 @Singleton
-public class VKInfoScheduler {
+public class KHLVKInfoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String chatId = "@khl_unofficial";
 
 
     public void run() {
-        logger.log(Level.SEVERE, "Start VKInfoScheduler...");
+        logger.log(Level.SEVERE, "Start KHLVKInfoScheduler...");
 
         try {
             UserInfo userInfo = new UserInfo();
@@ -127,7 +127,7 @@ public class VKInfoScheduler {
             }
 
         } catch (Exception ex) {
-            this.logger.log(Level.SEVERE, "VKInfoScheduler exception: ", ex);
+            this.logger.log(Level.SEVERE, "KHLVKInfoScheduler exception: ", ex);
         }
     }
 }
