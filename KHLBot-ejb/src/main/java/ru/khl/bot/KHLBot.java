@@ -22,11 +22,14 @@ public class KHLBot extends TelegramLongPollingBot {
 
         if (message != null && message.hasText()) {
 
-            this.logger.log(Level.INFO, "FirstName: " + message.getFrom().getFirstName());
-            this.logger.log(Level.INFO, "LastName: " + message.getFrom().getLastName());
-            this.logger.log(Level.INFO, "UserName: " + message.getFrom().getUserName());
-            this.logger.log(Level.INFO, "UserId: " + message.getFrom().getId());
-            this.logger.log(Level.INFO, "InputCommand: " + message.getText());
+            logger.log(Level.INFO, "FirstName: {0}, LastName: {1}, UserName: {2} \n" +
+                            "UserId: {3}, ChatId: {4}, CommandInput: {5}",
+                    new Object[]{message.getFrom().getFirstName(),
+                            message.getFrom().getLastName(),
+                            message.getFrom().getUserName(),
+                            message.getFrom().getId(),
+                            message.getChatId(),
+                            message.getText()});
 
             sendMsg(message, BotHelper.checkUserText(message.getText().toUpperCase()));
         }
