@@ -51,7 +51,7 @@ public class KHLBotStarter {
             this.logger.log(Level.SEVERE, "Register KHLBot....");
             botSession = telegramBotsApi.registerBot(new KHLBot());
             this.logger.log(Level.SEVERE, "Register done.");
-            this.logger.log(Level.SEVERE, "Start KHLBot...");
+            this.logger.log(Level.SEVERE, "KHLBot was started...");
 
         } catch (Exception ex) {
             this.logger.log(Level.SEVERE, "ContextInitialized exception: ", ex);
@@ -73,7 +73,7 @@ public class KHLBotStarter {
         videoScheduler.run();
     }
 
-    @Schedule(hour = "7-01", minute = "0,10,30,50")
+    @Schedule(hour = "7-01", minute = "0, 10, 30, 50")
     public void getVKInfo() {
         vkInfoScheduler.run();
     }

@@ -8,7 +8,7 @@ import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
 import ru.khl.bot.utils.Connection;
 
-import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * Created by Alexey on 13.12.2016.
  */
 
-@Singleton
+@Stateless
 public class KHLVideoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());

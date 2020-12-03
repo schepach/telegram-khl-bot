@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import ru.khl.bot.KHLBot;
 
-import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * Created by Alexey on 13.12.2016.
  */
 
-@Singleton
+@Stateless
 public class KHLVKInfoScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
