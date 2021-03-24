@@ -57,21 +57,29 @@ public class KHLBotStarter {
     }
 
     @Schedule(hour = "7-01")
+    @Lock(LockType.READ)
+    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getNews() {
         newsScheduler.run();
     }
 
     @Schedule(hour = "7-01")
+    @Lock(LockType.READ)
+    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getPhoto() {
         photoOfTheDayScheduler.run();
     }
 
     @Schedule(hour = "7-01")
+    @Lock(LockType.READ)
+    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getVideo() {
         videoScheduler.run();
     }
 
     @Schedule(hour = "7-01", minute = "0, 10, 30, 50")
+    @Lock(LockType.READ)
+    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getVKInfo() {
         vkInfoScheduler.run();
     }
@@ -80,6 +88,10 @@ public class KHLBotStarter {
     public void cleanup() {
         try {
             logger.log(Level.SEVERE, "Stop botSession...");
+            if (botSession == null) {
+                logger.log(Level.SEVERE, "botSession is null... return...");
+                return;
+            }
             botSession.stop();
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Destroyed exception: ", ex);
