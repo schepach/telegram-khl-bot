@@ -1,8 +1,8 @@
 package ru.khl.bot.bean.starter;
 
-import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.generics.BotSession;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.bean.scheduler.KHLNewsScheduler;
 import ru.khl.bot.bean.scheduler.KHLPhotoOfTheDayScheduler;
@@ -11,10 +11,9 @@ import ru.khl.bot.bean.scheduler.KHLVideoScheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,12 +40,11 @@ public class KHLBotStarter {
 
     @PostConstruct
     public void init() {
-        logger.log(Level.SEVERE, "ApiContextInitializer...");
-        ApiContextInitializer.init();
-        this.logger.log(Level.SEVERE, "Initialization BotsApi....");
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-
         try {
+            logger.log(Level.SEVERE, "ApiContextInitializer...");
+            this.logger.log(Level.SEVERE, "Initialization BotsApi....");
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+
             this.logger.log(Level.SEVERE, "OK!");
             this.logger.log(Level.SEVERE, "Register KHLBot....");
             botSession = telegramBotsApi.registerBot(new KHLBot());

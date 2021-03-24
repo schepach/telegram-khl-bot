@@ -1,5 +1,6 @@
 package ru.khl.bot.bean.scheduler;
 
+import com.vk.api.sdk.client.actors.ServiceActor;
 import common.vk.connection.VKConnection;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import ru.khl.bot.KHLBot;
@@ -64,6 +66,8 @@ public class KHLVKInfoScheduler {
                 List<InputMedia> inputMediaList = new ArrayList<>();
                 String titleWithPhoto = "";
                 boolean captionFlag = false;
+                InputStream inputStream;
+                InputFile inputFile;
 
                 for (Item item : wallItem.getItemList()) {
                     if (item.getPostType() == null
@@ -74,17 +78,25 @@ public class KHLVKInfoScheduler {
                     switch (item.getPostType()) {
                         case GIF:
                             URL urlGif = new URL(item.getLink());
-                            InputStream streamOfGIF = urlGif.openStream();
-                            new KHLBot().execute(new SendVideo().setChatId(chatId)
-                                    .setCaption(item.getTitle())
-                                    .setVideo("title", streamOfGIF));
+                            inputStream = urlGif.openStream();
+                            inputFile = new InputFile();
+                            inputFile.setMedia(inputStream, "file.gif");
+                            SendVideo sendVideo = new SendVideo();
+                            sendVideo.setChatId(chatId);
+                            sendVideo.setCaption(item.getTitle());
+                            sendVideo.setVideo(inputFile);
+                            new KHLBot().execute(sendVideo);
                             break;
                         case FILE:
                             URL urlOfFile = new URL(item.getLink());
-                            InputStream streamOfFile = urlOfFile.openStream();
-                            new KHLBot().execute(new SendDocument().setChatId(chatId)
-                                    .setCaption(item.getCaption())
-                                    .setDocument(item.getTitle(), streamOfFile));
+                            inputStream = urlOfFile.openStream();
+                            inputFile = new InputFile();
+                            inputFile.setMedia(inputStream, item.getTitle() != null ? item.getTitle() : "fileName");
+                            SendDocument sendDocument = new SendDocument();
+                            sendDocument.setChatId(chatId);
+                            sendDocument.setCaption(item.getCaption());
+                            sendDocument.setDocument(inputFile);
+                            new KHLBot().execute(sendDocument);
                             break;
                         case PHOTO:
                             if (item.getLink() == null)
@@ -109,19 +121,25 @@ public class KHLVKInfoScheduler {
                         default:
                             String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
                             String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
-                            new KHLBot().execute(new SendMessage().setChatId(chatId).setText(title.concat("\n").concat(link).concat("\n")));
+                            SendMessage sendMessage = new SendMessage();
+                            sendMessage.setChatId(chatId);
+                            sendMessage.setText(title.concat("\n").concat(link).concat("\n"));
+                            new KHLBot().execute(sendMessage);
                             break;
                     }
                 }
 
                 if (!photoList.isEmpty()) {
                     if (!captionFlag) {
-                        new KHLBot().execute(new SendMessage().setChatId(chatId).setText(titleWithPhoto));
+                        SendMessage sendMessage = new SendMessage();
+                        sendMessage.setChatId(chatId);
+                        sendMessage.setText(titleWithPhoto);
+                        new KHLBot().execute(sendMessage);
                     }
                     inputMediaList.addAll(photoList);
                     SendMediaGroup sendMediaGroup = new SendMediaGroup();
                     sendMediaGroup.setChatId(chatId);
-                    sendMediaGroup.setMedia(inputMediaList);
+                    sendMediaGroup.setMedias(inputMediaList);
                     new KHLBot().execute(sendMediaGroup);
                 }
             }

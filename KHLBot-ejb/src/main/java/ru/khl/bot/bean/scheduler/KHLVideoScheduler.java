@@ -44,8 +44,11 @@ public class KHLVideoScheduler {
                         this.logger.log(Level.SEVERE, "KHL video url is null or is empty");
                         continue;
                     }
-                    this.logger.log(Level.INFO, "KHL video url - {0}", new Object[]{item.getLink()});
-                    new KHLBot().execute(new SendMessage().setChatId(chatId).setText(item.getLink()));
+                    this.logger.log(Level.INFO, "KHL video url - {0}", item.getLink());
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(chatId);
+                    sendMessage.setText(item.getLink());
+                    new KHLBot().execute(sendMessage);
                 }
             }
 
