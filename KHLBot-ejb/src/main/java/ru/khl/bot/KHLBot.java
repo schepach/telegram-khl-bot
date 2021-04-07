@@ -1,5 +1,6 @@
 package ru.khl.bot;
 
+import common.vk.utils.RedisEntity;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -16,6 +17,14 @@ import java.util.logging.Logger;
 public class KHLBot extends TelegramLongPollingBot {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final String botName;
+    private final String botToken;
+
+    public KHLBot() {
+        botName = RedisEntity.getInstance().getElement("khl_botName");
+        botToken = RedisEntity.getInstance().getElement("khl_botToken");
+    }
+
 
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
@@ -37,11 +46,11 @@ public class KHLBot extends TelegramLongPollingBot {
 
 
     public String getBotUsername() {
-        return "botName";
+        return botName;
     }
 
     public String getBotToken() {
-        return "botToken";
+        return botToken;
     }
 
     private void sendMsg(Message message, String text) {
