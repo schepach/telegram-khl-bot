@@ -3,6 +3,7 @@ package ru.khl.bot.bean.scheduler;
 import common.vk.model.Item;
 import common.vk.model.MessageStructure;
 import common.vk.model.WallItem;
+import common.vk.utils.RedisEntity;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.khl.bot.KHLBot;
 import ru.khl.bot.constants.Constants;
@@ -19,7 +20,7 @@ import java.util.logging.Logger;
 public class KHLNewsScheduler {
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-    private final String chatId = "@khl_unofficial";
+    private final String chatId = RedisEntity.getInstance().getElement("khl_chatId");
 
     public void run() {
         logger.log(Level.SEVERE, "Start KHLNewsScheduler...");

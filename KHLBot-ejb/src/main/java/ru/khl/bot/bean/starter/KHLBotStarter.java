@@ -77,7 +77,7 @@ public class KHLBotStarter {
         videoScheduler.run();
     }
 
-    @Schedule(hour = "7-01", minute = "0, 10, 30, 50")
+    @Schedule(hour = "7-01", minute = "*/15")
     @Lock(LockType.READ)
     @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getVKInfo() {
