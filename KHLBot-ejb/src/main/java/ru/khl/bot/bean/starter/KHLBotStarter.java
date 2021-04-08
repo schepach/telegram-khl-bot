@@ -11,7 +11,10 @@ import ru.khl.bot.bean.scheduler.KHLVideoScheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.*;
+import javax.ejb.AccessTimeout;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -24,6 +27,7 @@ import java.util.logging.Logger;
 
 @Singleton
 @Startup
+@AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
 public class KHLBotStarter {
 
     @Inject
@@ -57,29 +61,21 @@ public class KHLBotStarter {
     }
 
     @Schedule(hour = "7-01")
-    @Lock(LockType.READ)
-    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getNews() {
         newsScheduler.run();
     }
 
     @Schedule(hour = "7-01")
-    @Lock(LockType.READ)
-    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getPhoto() {
         photoOfTheDayScheduler.run();
     }
 
     @Schedule(hour = "7-01")
-    @Lock(LockType.READ)
-    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getVideo() {
         videoScheduler.run();
     }
 
     @Schedule(hour = "7-01", minute = "*/15")
-    @Lock(LockType.READ)
-    @AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
     public void getVKInfo() {
         vkInfoScheduler.run();
     }

@@ -29,7 +29,7 @@ public class KHLVKInfoScheduler {
             userInfo.setVkServiceActor(new ServiceActor(appId, accessToken));
             userInfo.setBotAlias("KHL");
             userInfo.setVkPostCount(10);
-            TaskExecuter.execute(userInfo);
+            KHLTaskExecuter.execute(userInfo);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
         }

@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TaskExecuter {
+public class KHLTaskExecuter {
 
     private static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private static final Logger logger = Logger.getLogger(TaskExecuter.class.getName());
+    private static final Logger logger = Logger.getLogger(KHLTaskExecuter.class.getName());
     private static final String chatId = RedisEntity.getInstance().getElement("khl_chatId");
 
     public static void execute(UserInfo userInfo) {
