@@ -4,10 +4,11 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.khl.bot.KHLBot;
-import ru.khl.bot.bean.scheduler.KHLNewsScheduler;
-import ru.khl.bot.bean.scheduler.KHLPhotoOfTheDayScheduler;
-import ru.khl.bot.bean.scheduler.KHLVKInfoScheduler;
-import ru.khl.bot.bean.scheduler.KHLVideoScheduler;
+import ru.khl.bot.bean.game.Game;
+import ru.khl.bot.bean.scheduler.news.INewsScheduler;
+import ru.khl.bot.bean.scheduler.photo.IPhotoScheduler;
+import ru.khl.bot.bean.scheduler.video.IVideoScheduler;
+import ru.khl.bot.bean.scheduler.vk.IVKScheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,17 +28,19 @@ import java.util.logging.Logger;
 
 @Singleton
 @Startup
-@AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
+@AccessTimeout(value = 30, unit = TimeUnit.SECONDS)
 public class KHLBotStarter {
 
     @Inject
-    private KHLNewsScheduler newsScheduler;
+    private INewsScheduler newsScheduler;
     @Inject
-    private KHLPhotoOfTheDayScheduler photoOfTheDayScheduler;
+    private IPhotoScheduler photoScheduler;
     @Inject
-    private KHLVideoScheduler videoScheduler;
+    private IVideoScheduler videoScheduler;
     @Inject
-    private KHLVKInfoScheduler vkInfoScheduler;
+    private IVKScheduler vkScheduler;
+    @Inject
+    private Game game;
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private BotSession botSession;
@@ -51,7 +54,7 @@ public class KHLBotStarter {
 
             this.logger.log(Level.SEVERE, "OK!");
             this.logger.log(Level.SEVERE, "Register KHLBot....");
-            botSession = telegramBotsApi.registerBot(new KHLBot());
+            botSession = telegramBotsApi.registerBot(new KHLBot(game));
             this.logger.log(Level.SEVERE, "Register done.");
             this.logger.log(Level.SEVERE, "KHLBot was started...");
 
@@ -61,23 +64,23 @@ public class KHLBotStarter {
     }
 
     @Schedule(hour = "7-01")
-    public void getNews() {
-        newsScheduler.run();
+    public void sendNews() {
+        newsScheduler.sendKHLNews();
     }
 
     @Schedule(hour = "7-01")
-    public void getPhoto() {
-        photoOfTheDayScheduler.run();
+    public void sendPhoto() {
+        photoScheduler.sendPhotoOfDay();
     }
 
     @Schedule(hour = "7-01")
-    public void getVideo() {
-        videoScheduler.run();
+    public void sendVideo() {
+        videoScheduler.sendVideo();
     }
 
     @Schedule(hour = "7-01", minute = "*/15")
-    public void getVKInfo() {
-        vkInfoScheduler.run();
+    public void sendVKPosts() {
+        vkScheduler.sendVKPosts();
     }
 
     @PreDestroy
