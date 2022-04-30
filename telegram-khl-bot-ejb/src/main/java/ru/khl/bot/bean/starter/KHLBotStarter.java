@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 @Singleton
 @Startup
-@AccessTimeout(value = 30, unit = TimeUnit.SECONDS)
+@AccessTimeout(value = 1, unit = TimeUnit.MINUTES)
 public class KHLBotStarter {
 
     @Inject
