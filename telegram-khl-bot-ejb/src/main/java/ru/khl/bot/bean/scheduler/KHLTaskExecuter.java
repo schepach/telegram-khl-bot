@@ -91,12 +91,17 @@ public class KHLTaskExecuter {
                         inputFile = new InputFile();
                         inputFile.setMedia(inputStream, "image.gif");
 
-                        SendVideo sendVideo = new SendVideo();
-                        sendVideo.setChatId(chatId);
-                        sendVideo.setCaption(item.getTitle());
-                        sendVideo.setVideo(inputFile);
+                        String caption = item.getTitle();
+                        if (caption.length() > 1024) {
+                            caption = caption.substring(0, 1024);
+                        }
+
                         logger.log(Level.INFO, "Alias - {0}; Send gif...", alias);
-                        new KHLBot().execute(sendVideo);
+                        new KHLBot().execute(SendVideo.builder()
+                                .chatId(chatId)
+                                .caption(caption)
+                                .video(inputFile)
+                                .build());
                         break;
                     case FILE:
                         URL urlOfFile = new URL(item.getLink());
@@ -104,12 +109,12 @@ public class KHLTaskExecuter {
                         inputFile = new InputFile();
                         inputFile.setMedia(inputStream, item.getTitle() != null ? item.getTitle() : "fileName");
 
-                        SendDocument sendDocument = new SendDocument();
-                        sendDocument.setChatId(chatId);
-                        sendDocument.setCaption(item.getCaption());
-                        sendDocument.setDocument(inputFile);
                         logger.log(Level.INFO, "Alias - {0}; Send file...", alias);
-                        new KHLBot().execute(sendDocument);
+                        new KHLBot().execute(SendDocument.builder()
+                                .chatId(chatId)
+                                .caption(item.getCaption())
+                                .document(inputFile)
+                                .build());
                         break;
                     case PHOTO:
 
@@ -147,10 +152,10 @@ public class KHLTaskExecuter {
                                 captionFlag = true;
                             }
                             if (!captionFlag) {
-                                SendMessage sendMessage = new SendMessage();
-                                sendMessage.setChatId(chatId);
-                                sendMessage.setText(titleWithPhoto);
-                                new KHLBot().execute(sendMessage);
+                                new KHLBot().execute(SendMessage.builder()
+                                        .chatId(chatId)
+                                        .text(titleWithPhoto)
+                                        .build());
                             }
                             sendPhoto.setPhoto(inputFile);
                             logger.log(Level.INFO, "Alias - {0}; Send photo...", alias);
@@ -160,11 +165,14 @@ public class KHLTaskExecuter {
                     default:
                         String title = item.getTitle() != null && !item.getTitle().isEmpty() ? item.getTitle() : "";
                         String link = item.getLink() != null && !item.getLink().isEmpty() ? item.getLink() : "";
-                        SendMessage sendMessage = new SendMessage();
-                        sendMessage.setChatId(chatId);
-                        sendMessage.setText(title.concat("\n").concat(link).concat("\n"));
+
                         logger.log(Level.INFO, "Alias - {0}; Send default message...", alias);
-                        new KHLBot().execute(sendMessage);
+                        new KHLBot().execute(SendMessage.builder()
+                                .chatId(chatId)
+                                .text(title.concat("\n")
+                                        .concat(link)
+                                        .concat("\n"))
+                                .build());
                         break;
                 }
             }
@@ -191,22 +199,22 @@ public class KHLTaskExecuter {
                 //  Если кол-во медиа ДО 10 шт
                 if (photoList.size() > 1 && photoList.size() <= 10) {
                     inputMediaList = new ArrayList<>(photoList);
-                    SendMediaGroup sendMediaGroup = new SendMediaGroup();
-                    sendMediaGroup.setChatId(chatId);
-                    sendMediaGroup.setMedias(inputMediaList);
                     logger.log(Level.INFO, "Alias - {0}; Send sendMediaGroup...", alias);
-                    new KHLBot().execute(sendMediaGroup);
+                    new KHLBot().execute(SendMediaGroup.builder()
+                            .chatId(chatId)
+                            .medias(inputMediaList)
+                            .build());
                 } else {
                     photoList.forEach(elem -> {
                         try {
                             InputFile file = new InputFile();
                             file.setMedia(elem.getNewMediaStream(), "mediaFile.jpg");
-                            SendPhoto sendPhoto = new SendPhoto();
-                            sendPhoto.setChatId(chatId);
-                            sendPhoto.setPhoto(file);
-                            sendPhoto.setCaption(elem.getCaption());
                             logger.log(Level.INFO, "Alias - {0}; Send photo...", alias);
-                            new KHLBot().execute(sendPhoto);
+                            new KHLBot().execute(SendPhoto.builder()
+                                    .chatId(chatId)
+                                    .photo(file)
+                                    .caption(elem.getCaption())
+                                    .build());
                         } catch (Exception ex) {
                             logger.log(Level.SEVERE, null, ex);
                         }

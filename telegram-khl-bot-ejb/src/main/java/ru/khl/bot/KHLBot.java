@@ -29,6 +29,9 @@ public class KHLBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
 
+        if (update.hasChannelPost())
+            return;
+
         if (message != null && message.hasText()) {
 
             logger.log(Level.INFO, "FirstName: {0}, LastName: {1}, UserName: {2} \n" +
@@ -59,12 +62,13 @@ public class KHLBot extends TelegramLongPollingBot {
                 || message.getChatId() == null)
             return;
 
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setText(text);
-        sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setReplyToMessageId(message.getMessageId());
         try {
-            execute(sendMessage);
+            execute(SendMessage.builder()
+                    .text(text)
+                    .chatId(String.valueOf(message.getFrom().getId()))
+                    .replyToMessageId(message.getMessageId())
+                    .disableWebPagePreview(true)
+                    .build());
         } catch (Exception ex) {
             this.logger.log(Level.SEVERE, "Method sendMsg exception: ", ex);
         }

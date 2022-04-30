@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.bot.khl</groupId>
-    <artifactId>KHLBot</artifactId>
+    <artifactId>telegram-khl-bot</artifactId>
     <packaging>pom</packaging>
-    <version>3.5.1</version>
+    <version>3.6.0</version>
 
     <modules>
-        <module>KHLBot-ear</module>
-        <module>KHLBot-ejb</module>
+        <module>telegram-khl-bot-ear</module>
+        <module>telegram-khl-bot-ejb</module>
     </modules>
 
 </project>

@@ -31,13 +31,13 @@ import java.util.logging.Logger;
 public class KHLBotStarter {
 
     @Inject
-    KHLNewsScheduler newsScheduler;
+    private KHLNewsScheduler newsScheduler;
     @Inject
-    KHLPhotoOfTheDayScheduler photoOfTheDayScheduler;
+    private KHLPhotoOfTheDayScheduler photoOfTheDayScheduler;
     @Inject
-    KHLVideoScheduler videoScheduler;
+    private KHLVideoScheduler videoScheduler;
     @Inject
-    KHLVKInfoScheduler vkInfoScheduler;
+    private KHLVKInfoScheduler vkInfoScheduler;
 
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private BotSession botSession;

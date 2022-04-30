@@ -24,12 +24,16 @@ public class KHLVKInfoScheduler {
         logger.log(Level.SEVERE, "Start KHLVKInfoScheduler...");
 
         try {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setVkOwnerId(groupId);
-            userInfo.setVkServiceActor(new ServiceActor(appId, accessToken));
-            userInfo.setBotAlias("KHL");
-            userInfo.setVkPostCount(10);
-            KHLTaskExecuter.execute(userInfo);
+            /* 1. Alias of telegram bot for redis storage (for example: KHL)
+               2. Group id (public page id, negative value)
+               3. VK service actor with application id and access token (service key)
+               4. As many posts as you need from VK public page
+            */
+
+            KHLTaskExecuter.execute(new UserInfo("KHL",
+                    groupId,
+                    new ServiceActor(appId, accessToken),
+                    10));
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
         }
