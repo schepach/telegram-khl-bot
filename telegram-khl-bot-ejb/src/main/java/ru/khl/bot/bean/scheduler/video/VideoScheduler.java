@@ -81,7 +81,7 @@ public class VideoScheduler implements IVideoScheduler {
         // middle block (new video)
         Element videoElement = doc.select("div.tab-video div.b-middle_block a[href]").first();
         if (videoElement != null) {
-            videoUrl = videoElement.absUrl("abs:href");
+            videoUrl = videoElement.attr("abs:href");
             if (videoUrl != null && !videoUrl.isEmpty()) {
                 item = new Item();
                 item.setLink(videoUrl);
@@ -97,7 +97,7 @@ public class VideoScheduler implements IVideoScheduler {
             if (videoElement == null)
                 continue;
 
-            videoUrl = videoElement.absUrl("abs:href");
+            videoUrl = videoElement.attr("abs:href");
             item = new Item();
             item.setLink(videoUrl);
             item.setPostType(Item.PostType.VIDEO);

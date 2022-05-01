@@ -7,7 +7,7 @@
     <groupId>ru.bot.khl</groupId>
     <artifactId>telegram-khl-bot</artifactId>
     <packaging>pom</packaging>
-    <version>3.6.0</version>
+    <version>3.6.1</version>
 
     <modules>
         <module>telegram-khl-bot-ear</module>

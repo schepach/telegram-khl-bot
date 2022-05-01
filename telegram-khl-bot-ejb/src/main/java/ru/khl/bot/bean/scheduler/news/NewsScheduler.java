@@ -78,7 +78,7 @@ public class NewsScheduler implements INewsScheduler {
         // Get fresh news
         Element newsElement = doc.select("div.b-content_section.m-teaser a[href]").first();
         if (newsElement != null) {
-            newsUrl = newsElement.absUrl("abs:href");
+            newsUrl = newsElement.attr("abs:href");
             if (newsUrl != null && !newsUrl.isEmpty()) {
                 item = new Item();
                 item.setLink(newsUrl);
@@ -94,7 +94,7 @@ public class NewsScheduler implements INewsScheduler {
             if (newsElement == null)
                 continue;
 
-            newsUrl = newsElement.absUrl("abs:href");
+            newsUrl = newsElement.attr("abs:href");
             item = new Item();
             item.setLink(newsUrl);
             item.setPostType(Item.PostType.LINK);
