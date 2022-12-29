@@ -76,7 +76,7 @@ public class NewsScheduler implements INewsScheduler {
         Item item;
 
         // Get fresh news
-        Element newsElement = doc.select("div.b-content_section.m-teaser a[href]").first();
+        Element newsElement = doc.select("div > div.news.main-news > div.news-frame > div.news-frame__main a[href]").first();
         if (newsElement != null) {
             newsUrl = newsElement.attr("abs:href");
             if (newsUrl != null && !newsUrl.isEmpty()) {
@@ -88,13 +88,12 @@ public class NewsScheduler implements INewsScheduler {
         }
 
         // Get old news
-        Elements oldNewsElements = doc.select("div.b-content_section.m-video.s-float_panel_start div.b-news_bnr_item");
+        Elements oldNewsElements = doc.select("div > div.news.main-news > div.news-frame > div.news-frame__info > div");
         for (Element newsElem : oldNewsElements) {
-            newsElement = newsElem.select("a").first();
             if (newsElement == null)
                 continue;
 
-            newsUrl = newsElement.attr("abs:href");
+            newsUrl = newsElem.select("a").attr("abs:href");
             item = new Item();
             item.setLink(newsUrl);
             item.setPostType(Item.PostType.LINK);
