@@ -6,7 +6,6 @@ import common.vk.model.WallItem;
 import common.vk.utils.RedisEntity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.khl.bot.KHLBot;
@@ -74,34 +73,17 @@ public class VideoScheduler implements IVideoScheduler {
         }
 
         WallItem wallItem = new WallItem();
-        String videoUrl;
-        Item item;
         Document doc = Jsoup.connect(url).get();
 
-        // middle block (new video)
-        Element videoElement = doc.select("div.tab-video div.b-middle_block a[href]").first();
-        if (videoElement != null) {
-            videoUrl = videoElement.attr("abs:href");
-            if (videoUrl != null && !videoUrl.isEmpty()) {
-                item = new Item();
-                item.setLink(videoUrl);
+        // Get all videos from main page
+        Elements videoElements = doc.select("div > div.video-items > div > a[href]");
+        if (videoElements != null) {
+            videoElements.forEach(video -> {
+                Item item = new Item();
+                item.setLink(video.attr("abs:href"));
                 item.setPostType(Item.PostType.VIDEO);
                 RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
-            }
-        }
-
-        // short block (old videos)
-        Elements videoElementsOfShortBlock = doc.select("div.tab-video div.b-short_block div.b-short_block_cover");
-        for (Element videoItem : videoElementsOfShortBlock) {
-            videoElement = videoItem.select("a").first();
-            if (videoElement == null)
-                continue;
-
-            videoUrl = videoElement.attr("abs:href");
-            item = new Item();
-            item.setLink(videoUrl);
-            item.setPostType(Item.PostType.VIDEO);
-            RedisEntity.getInstance().checkRedisStore("KHL", item, wallItem);
+            });
         }
 
         MessageStructure messageStructure = new MessageStructure();
