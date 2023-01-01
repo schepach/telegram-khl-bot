@@ -2,7 +2,6 @@ package ru.khl.bot.bean.game;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.khl.bot.utils.BotHelper;
 
@@ -35,11 +34,6 @@ public class GameInfo implements Game {
             return null;
         }
 
-        String club1;
-        String club2;
-        String when;
-        String totalScore;
-
         Document doc;
         try {
             doc = Jsoup.connect(url).get();
@@ -48,32 +42,41 @@ public class GameInfo implements Game {
             return null;
         }
 
-        Elements elements = doc.select("div.b-content_section.s-float_panel_start div.b-blocks_cover div.b-half_block ul.b-wide_tile li.b-wide_tile_item");
+        // Get list of last games
+        Elements games = doc.select("#wrapper > div.clubs-detail > div > div > section:nth-child(3) > div > div.information-body > div > div > div.information-body__cards > div.information-body__content-cards > div.card-games > div.card-game_height-fixed");
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Подписывайтесь на канал KHL https://t.me/khl_unofficial - там Вас ждет много интересного!").append("\n\n");
+        stringBuilder.append("Подписывайтесь на канал KHL @khl_unofficial - там Вас ждет много интересного!").append("\n\n");
 
-        for (Element item : elements) {
+        // Loop for each game
+        games.forEach(game -> {
 
-            //Get VS commands
-            Elements clubsItem = item.select("dd.b-details_txt");
-            club1 = clubsItem.get(0).select("h5.e-club_name").text().concat("(").concat(clubsItem.get(0).select("p.e-club_sity").text().concat(")"));
-            club2 = clubsItem.get(1).select("h5.e-club_name").text().concat("(").concat(clubsItem.get(1).select("p.e-club_sity").text().concat(")"));
-            stringBuilder.append(club1).append(" - ").append(club2).append("\n");
+            // Get VS commands
+            String clubOne = game.select("a.card-game__club.card-game__club_left > p.card-game__club-name").text()
+                    .concat("(")
+                    .concat(game.select("a.card-game__club.card-game__club_left > p.card-game__club-local").text())
+                    .concat(")");
 
-            //Get WHEN or TOTAL SCORE
-            Elements whenItem = item.select("dt.b-total_score");
-            if (whenItem.size() == 1) {
-                when = "Дата встречи: " + whenItem.select("b.e-match-num").text() + " в " + whenItem.select("h3").first().text();
-                stringBuilder.append(when);
-            } else {
-                totalScore = "Дата встречи: " + whenItem.get(0).select("b.e-match-num").text() + "\n"
-                        + "Результат: " + whenItem.get(1).select("h3").text() + "\n"
-                        + "Подробно: " + item.select("dd.b-period_score").text();
-                stringBuilder.append(totalScore);
+            String clubTwo = game.select("a.card-game__club.card-game__club_right > p.card-game__club-name").text()
+                    .concat("(")
+                    .concat(game.select("a.card-game__club.card-game__club_right > p.card-game__club-local").text())
+                    .concat(")");
+
+            stringBuilder.append(clubOne).append(" VS ").append(clubTwo).append("\n");
+
+            // Get game DATE
+            String gameDate = game.select("div.card-game__center > time.card-game__center-day").text();
+            stringBuilder.append("Дата встречи: ").append(gameDate).append("\n");
+
+            // Get TOTAL SCORE and DETAILS
+            String gameScore = game.select("div.card-game__center > p.card-game__center-score").text();
+            if (gameScore != null && !gameScore.isEmpty()) {
+                String gameDetails = game.select("div.card-game__center-info > p.card-game__center-value").text();
+                stringBuilder.append("Результат: ").append(gameScore).append("\n")
+                        .append("Подробно: ").append(gameDetails).append("\n");
             }
-            stringBuilder.append("\n-------\uD83C\uDFD2\uD83C\uDFC6\uD83D\uDCAA\uD83C\uDFFB-------\n");
-        }
+            stringBuilder.append("-------🏒🥅🏆-------\n");
+        });
 
         logger.log(Level.INFO, "Info about hockey club - {0} ", stringBuilder.toString());
 
