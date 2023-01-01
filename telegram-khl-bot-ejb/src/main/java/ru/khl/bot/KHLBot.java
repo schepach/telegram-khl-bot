@@ -2,13 +2,13 @@ package ru.khl.bot;
 
 import common.vk.utils.RedisEntity;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.khl.bot.bean.game.Game;
-import ru.khl.bot.utils.Clubs;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +23,7 @@ public class KHLBot extends TelegramLongPollingBot {
     private final String botToken;
     private Game game;
 
+    @Inject
     public KHLBot(Game game) {
         botName = RedisEntity.getInstance().getElement("khl_botName");
         botToken = RedisEntity.getInstance().getElement("khl_botToken");
@@ -35,54 +36,78 @@ public class KHLBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-        Message message = update.getMessage();
 
-        if (update.hasChannelPost())
-            return;
+        try {
+            if (update != null) {
 
-        if (message != null && message.getText() != null) {
+                Message message = update.getMessage();
 
-            logger.log(Level.INFO, "FirstName: {0}, LastName: {1}, UserName: {2} \n" +
-                            "UserId: {3}, CommandInput: {4}",
-                    new Object[]{message.getFrom().getFirstName(),
-                            message.getFrom().getLastName(),
-                            message.getFrom().getUserName(),
-                            message.getFrom().getId(),
-                            message.getText()});
+                if (message != null) {
 
-            String text;
+                    // If the message is from bot, channel or group - no action
+                    if ((message.getFrom() != null && message.getFrom().getIsBot())
+                            || message.isSuperGroupMessage()
+                            || message.isGroupMessage()
+                            || message.isChannelMessage())
+                        return;
 
-            if (message.getText().equals("/start")) {
-                text = "Enter your favorite conference. /help - помощь";
-            } else if (message.getText().equals("/help")) {
-                text = "/hockey_clubs_of_east - клубы восточной конференции\n" +
-                        "/hockey_clubs_of_west - клубы западной конференции\n" +
-                        "/help - помощь";
-            } else if (message.getText().equals("/hockey_clubs_of_west")) {
-                text = Clubs.getWESTTeams();
-            } else if (message.getText().equals("/hockey_clubs_of_east")) {
-                text = Clubs.getEASTTeams();
-            } else if (Clubs.getEASTTeams().contains(message.getText())
-                    || Clubs.getWESTTeams().contains(message.getText())) {
-                text = game.getGamesInfoOfHockeyClub(message.getText());
-            } else {
-                text = "Bad Command! /help - помощь";
+
+                    if (update.hasMessage() && message.hasText()) {
+                        String text = message.getText();
+                        Long userId = message.getFrom().getId();
+
+                        logger.log(Level.INFO, "FirstName: {0}, LastName: {1}, UserName: {2} \n" +
+                                        "UserId: {3}, Input: {4}",
+                                new Object[]{message.getFrom().getFirstName(),
+                                        message.getFrom().getLastName(),
+                                        message.getFrom().getUserName(),
+                                        userId,
+                                        text});
+
+                        if (text != null) {
+                            if (text.equals("/start")) {
+                                this.game.getConferences(userId);
+                            } else {
+                                this.game.sendDefaultMessage(userId);
+                            }
+                        }
+                    }
+                }
+
+                // Check callback
+                if (update.hasCallbackQuery()) {
+                    String callBackData = update.getCallbackQuery().getData();
+                    String callBackQueryId = update.getCallbackQuery().getId();
+                    Long userId = update.getCallbackQuery().getFrom().getId();
+
+                    logger.log(Level.INFO, "callBackData - {0}", callBackData);
+                    logger.log(Level.INFO, "userId - {0}", userId);
+
+                    if (callBackData.equals("west")
+                            || callBackData.equals("east")) {
+                        this.game.getClubsByConference(userId, callBackData);
+                    } else if (callBackData.equals("conferences")) {
+                        this.game.sendDefaultMessage(userId);
+                    } else {
+                        this.game.sendInfoAboutGames(userId, callBackData);
+                    }
+                    this.sendAnswerCallbackQuery(callBackQueryId);
+                }
             }
 
-            if (text == null
-                    || text.isEmpty())
-                return;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, null, e);
+        }
+    }
 
-            try {
-                execute(SendMessage.builder()
-                        .text(text)
-                        .chatId(String.valueOf(message.getFrom().getId()))
-                        .replyToMessageId(message.getMessageId())
-                        .disableWebPagePreview(true)
-                        .build());
-            } catch (TelegramApiException e) {
-                logger.log(Level.SEVERE, null, e);
-            }
+    private void sendAnswerCallbackQuery(String callBackQueryId) {
+        AnswerCallbackQuery answerCallbackQuery = AnswerCallbackQuery.builder()
+                .callbackQueryId(callBackQueryId)
+                .build();
+        try {
+            execute(answerCallbackQuery);
+        } catch (TelegramApiException e) {
+            logger.log(Level.SEVERE, null, e);
         }
     }
 

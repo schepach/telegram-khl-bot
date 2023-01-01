@@ -5,7 +5,7 @@
     <parent>
         <artifactId>telegram-khl-bot</artifactId>
         <groupId>ru.bot.khl</groupId>
-        <version>3.6.5</version>
+        <version>3.7.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
